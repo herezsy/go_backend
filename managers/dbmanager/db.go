@@ -70,9 +70,9 @@ func GetCache(name string) (res string, err error) {
 	return
 }
 
-func DelCache(name string) (res string, err error) {
+func DelCache(name string) (res int64, err error) {
 	db := dialRedis()
 	defer db.Close()
-	res, err = redis.String(db.Do("del", name))
+	res, err = redis.Int64(db.Do("del", name))
 	return
 }
