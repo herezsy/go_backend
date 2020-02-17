@@ -103,12 +103,19 @@ func (account *Account) SendCode(secret *authparams.AuthSecret, res *authparams.
 	if secret.AccountType != "phone" {
 		return errors.New("accountType wrong")
 	}
-	uid, _, _, _, _, err := getAuth(secret)
-	if err != nil {
+	uid, _, _, _, _, err := getInfo(secret)
+	if err != nil && (err.Error() != "uid not found" || secret.AccountType != "phone") {
 		meetError("auth", err)
 		return err
 	}
-	_, err = dbmanager.SetCacheWithPX("auth&uid="+strconv.FormatInt(uid, 10), randworker.GetNumbersString(4), 300000)
+	var str string
+	if err != nil && err.Error() == "uid not found" {
+		str = "auth&phone=" + secret.Account
+	} else {
+		str = "auth&uid=" + strconv.FormatInt(uid, 10)
+	}
+	err = nil
+	_, err = dbmanager.SetCacheWithPX(str, randworker.GetNumbersString(4), 300000)
 	log.Warnf("%v\n", strconv.FormatInt(uid, 10))
 	if err != nil {
 		meetError("SetCacheWithPX", err)
@@ -116,10 +123,64 @@ func (account *Account) SendCode(secret *authparams.AuthSecret, res *authparams.
 	return err
 }
 
+func (account *Account) FindUid(secret *authparams.AuthSecret, b *int64) error {
+	uid, _, _, _, _, err := getInfo(secret)
+	if err != nil && err.Error() != "uid not found" {
+		return err
+	}
+	*b = uid
+	return nil
+}
+
+func (account *Account) Register(secret *authparams.AuthSecret, res *authparams.ResWithToken) error {
+	if secret.AccountType == "phone" && secret.CodeType == "code" {
+		code, err := dbmanager.GetCache("auth&phone=" + secret.Account)
+		if err != nil {
+			return err
+		}
+		c := secret.Code
+		if c == "" || code != c {
+			err = errors.New("auth error")
+		} else {
+			_, err = dbmanager.DelCache("auth&phone=" + secret.Account)
+		}
+		if err != nil {
+			return err
+		}
+	} else if secret.AccountType == "username" && secret.CodeType == "password" {
+		// empty action
+	} else {
+		return errors.New("process not accepted")
+	}
+	// create account
+	err := createAccount(secret)
+	if err != nil {
+		return err
+	}
+	// make token
+	uid, _, pt, pl, nk, err := getInfo(secret)
+	if err != nil {
+		meetError("getInfo", err)
+		return err
+	}
+	token, err := makeToken(uid, pt, pl, nk)
+	if err != nil {
+		meetError("makeToken", err)
+		return err
+	}
+	// assign
+	res.Uid = uid
+	res.Nickname = nk
+	res.PrivilegeType = pt
+	res.PrivilegeLevel = pl
+	res.Token = token
+	return err
+}
+
 func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk string, err error) {
 	// fetch auth info
 	var password string
-	uid, password, pt, pl, nk, err = getAuth(secret)
+	uid, password, pt, pl, nk, err = getInfo(secret)
 	if err != nil {
 		return
 	}
@@ -130,8 +191,9 @@ func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk str
 		code, err = dbmanager.GetCache("auth&uid=" + strconv.FormatInt(uid, 10))
 		c := secret.Code
 		if c == "" || code != c {
-			_, err = dbmanager.DelCache("auth&uid=" + strconv.FormatInt(uid, 10))
 			err = errors.New("auth error")
+		} else {
+			_, err = dbmanager.DelCache("auth&uid=" + strconv.FormatInt(uid, 10))
 		}
 	case "password":
 		c := secret.Code
@@ -139,7 +201,7 @@ func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk str
 			err = errors.New("auth error")
 		}
 	case "wxopenid":
-		c := secret.Code
+		c := secret.Account
 		if c == "" {
 			err = errors.New("auth error")
 		}
@@ -149,7 +211,7 @@ func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk str
 	return
 }
 
-func getAuth(secret *authparams.AuthSecret) (uid int64, password string, pt string, pl int64, nk string, err error) {
+func getInfo(secret *authparams.AuthSecret) (uid int64, password string, pt string, pl int64, nk string, err error) {
 	switch secret.AccountType {
 	case "phone":
 		uid, password, pt, pl, nk, err = queryAuth("phone", secret)
@@ -202,6 +264,55 @@ func queryAuth(id string, secret *authparams.AuthSecret) (uid int64, password st
 		err = errors.New("uid not found")
 		return
 	}
+}
+
+func createAccount(secret *authparams.AuthSecret) (err error) {
+	db, err := dbmanager.DialPG()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	var res sql.Result
+	var stmt *sql.Stmt
+	if secret.AccountType == "phone" && secret.CodeType == "code" {
+		stmt, err = db.Prepare("INSERT INTO account(registerprocess, registertype, nickname, phone) VALUES ('auth', 'phone', $1, $2);")
+		if err != nil {
+			return
+		}
+		res, err = stmt.Exec(secret.Account, secret.Account)
+		if err != nil {
+			return
+		}
+	} else if secret.AccountType == "username" && secret.CodeType == "password" {
+		stmt, err = db.Prepare("INSERT INTO account(registerprocess, registertype, nickname, username, password) VALUES ('auth', 'password', $1, $2, $3)")
+		if err != nil {
+			return
+		}
+		res, err = stmt.Exec(secret.Account, secret.Account, secret.Code)
+		if err != nil {
+			return
+		}
+	} else if secret.AccountType == "wxopenid" {
+		stmt, err = db.Prepare("INSERT INTO account(registerprocess, registertype, nickname, wxopenid) VALUES ('database', 'wxopenid', $1, $1);")
+		if err != nil {
+			return
+		}
+		res, err = stmt.Exec(secret.Account, secret.Account)
+		if err != nil {
+			return
+		}
+	} else {
+		err = errors.New("wrong type")
+		return
+	}
+	row, err := res.RowsAffected()
+	if err != nil {
+		return
+	}
+	if row != 1 {
+		err = errors.New("error rows effect")
+	}
+	return
 }
 
 func decodeToken(token string) (uid int64, pt string, pl int64, nk string, t time.Time, err error) {
