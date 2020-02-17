@@ -20,9 +20,9 @@ func init() {
 	log.SetReportCaller(true)
 }
 
-func (account *Account) AuthAndGetToken(secret authparams.AuthSecret, res *authparams.ResWithToken) error {
+func (account *Account) AuthAndGetToken(secret *authparams.AuthSecret, res *authparams.ResWithToken) error {
 	// auth info
-	uid, pt, pl, nk, err := auth(&secret)
+	uid, pt, pl, nk, err := auth(secret)
 	if err != nil {
 		meetError("auth", err)
 		return err
@@ -50,9 +50,9 @@ func (account *Account) AuthAndGetToken(secret authparams.AuthSecret, res *authp
 	return nil
 }
 
-func (account *Account) Auth(secret authparams.AuthSecret, res *authparams.ResWithoutToken) error {
+func (account *Account) Auth(secret *authparams.AuthSecret, res *authparams.ResWithoutToken) error {
 	// auth info
-	uid, pt, pl, nk, err := auth(&secret)
+	uid, pt, pl, nk, err := auth(secret)
 	if err != nil {
 		meetError("auth", err)
 		return err
@@ -65,7 +65,7 @@ func (account *Account) Auth(secret authparams.AuthSecret, res *authparams.ResWi
 	return nil
 }
 
-func (account *Account) AuthToken(secret authparams.AuthSecret, res *authparams.ResWithToken) error {
+func (account *Account) AuthToken(secret *authparams.AuthSecret, res *authparams.ResWithToken) error {
 	// confirm code type
 	if secret.CodeType != "token" {
 		return errors.New("codeType wrong")
@@ -93,17 +93,17 @@ func (account *Account) AuthToken(secret authparams.AuthSecret, res *authparams.
 	return nil
 }
 
-func (account *Account) Echo(str string, res *string) error {
-	*res = str
+func (account *Account) Echo(str *string, res *string) error {
+	*res = *str
 	return nil
 }
 
-func (account *Account) SendCode(secret authparams.AuthSecret, res *authparams.ResWithoutToken) error {
+func (account *Account) SendCode(secret *authparams.AuthSecret, res *authparams.ResWithoutToken) error {
 	// confirm account type
 	if secret.AccountType != "phone" {
 		return errors.New("accountType wrong")
 	}
-	uid, _, _, _, _, err := getAuth(&secret)
+	uid, _, _, _, _, err := getAuth(secret)
 	if err != nil {
 		meetError("auth", err)
 		return err

@@ -1,12 +1,11 @@
 package account
 
 import (
-	"../../managers/rpcmanager"
+	"../../managers/rpcmanager/account"
 	"../../params/authparams"
 	"../base"
 	"errors"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -15,20 +14,13 @@ func SendPhoneCode(c *gin.Context) {
 	if phone == "" {
 		base.ServeError(c, "phone number empty", errors.New("phone number empty"))
 	}
-	conn, err := rpcmanager.Get()
-	defer conn.Close()
-	if err != nil {
-		base.ServeFatal(c, "rpcmanager.Get", err)
-		return
-	}
-	secret := authparams.AuthSecret{
+	secret := &authparams.AuthSecret{
 		Account:     phone,
 		AccountType: "phone",
 	}
-	var res = authparams.ResWithoutToken{}
-	err = conn.Call("Account.SendCode", secret, &res)
+	var res = &authparams.ResWithoutToken{}
+	err := account.SendCode(c, secret, res)
 	if err != nil {
-		base.ServeError(c, "Account.SendCode", err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -43,23 +35,16 @@ func Login(c *gin.Context) {
 		base.ServeError(c, "phone number empty", errors.New("phone number empty"))
 		return
 	}
-	conn, err := rpcmanager.Get()
-	defer conn.Close()
-	if err != nil {
-		base.ServeFatal(c, "rpcmanager.Get", err)
-	}
-	secret := authparams.AuthSecret{
+	secret := &authparams.AuthSecret{
 		Account:     username,
 		AccountType: "username",
 		Code:        password,
 		CodeType:    "password",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
-	var res = authparams.ResWithToken{}
-	err = conn.Call("Account.AuthAndGetToken", secret, &res)
-	log.Info(res)
+	var res = &authparams.ResWithToken{}
+	err := account.AuthAndGetToken(c, secret, res)
 	if err != nil {
-		base.ServeError(c, "Account.AuthAndGetToken", err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -74,21 +59,14 @@ func AuthToken(c *gin.Context) {
 		base.ServeError(c, "none token access", errors.New("none token access"))
 		return
 	}
-	conn, err := rpcmanager.Get()
-	defer conn.Close()
-	if err != nil {
-		base.ServeFatal(c, "rpcmanager.Get", err)
-	}
-	secret := authparams.AuthSecret{
+	secret := &authparams.AuthSecret{
 		Code:     token,
 		CodeType: "token",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
-	var res = authparams.ResWithToken{}
-	err = conn.Call("Account.AuthToken", secret, &res)
-	log.Info(res)
+	var res = &authparams.ResWithToken{}
+	err := account.AuthToken(c, secret, res)
 	if err != nil {
-		base.ServeError(c, "Account.AuthToken", err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
