@@ -16,7 +16,7 @@ func ServeError(c *gin.Context, action string, err error) {
 	log.WithFields(log.Fields{
 		"Action": action,
 		"Error":  err,
-	})
+	}).Warn()
 	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 		"state": "error",
 		"error": action,
@@ -27,7 +27,7 @@ func ServeFatal(c *gin.Context, action string, err error) {
 	log.WithFields(log.Fields{
 		"Action": action,
 		"Error":  err,
-	})
+	}).Warn()
 	c.AbortWithStatusJSON(http.StatusBadGateway, gin.H{
 		"state": "fatal",
 		"error": action,
