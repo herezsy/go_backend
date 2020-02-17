@@ -77,10 +77,14 @@ func (account *Account) AuthToken(secret *authparams.AuthSecret, res *authparams
 		return err
 	}
 	// check whether token is old or not
-	tn := time.Now().Add(20 * time.Minute)
 	var token string
-	if tn.After(t) {
+	if tDead := time.Now(); tDead.After(t) {
+		return errors.New("token expired")
+	} else if tOld := tDead.Add(10 * 24 * time.Hour); tOld.After(t) {
 		token, err = makeToken(uid, pt, pl, nk)
+		if err != nil {
+			return err
+		}
 	} else {
 		token = secret.Code
 	}
@@ -104,7 +108,7 @@ func (account *Account) SendCode(secret *authparams.AuthSecret, res *authparams.
 		return errors.New("accountType wrong")
 	}
 	uid, _, _, _, _, err := getInfo(secret)
-	if err != nil && (err.Error() != "uid not found" || secret.AccountType != "phone") {
+	if err != nil && err.Error() != "uid not found" {
 		meetError("auth", err)
 		return err
 	}
@@ -177,6 +181,24 @@ func (account *Account) Register(secret *authparams.AuthSecret, res *authparams.
 	return err
 }
 
+func (account *Account) GetNickname(secret *authparams.AuthSecret, res *authparams.ResWithoutToken) error {
+	_, _, _, _, nk, err := getInfo(secret)
+	if err != nil && err.Error() != "uid not found" {
+		meetError("auth", err)
+		return err
+	}
+	if nk == "" {
+		return nil
+	}
+	rnk := []rune(nk)
+	var snk = "*"
+	if len(rnk) > 1 {
+		snk += string(rnk[1:])
+	}
+	res.Nickname = snk
+	return nil
+}
+
 func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk string, err error) {
 	// fetch auth info
 	var password string
@@ -201,8 +223,13 @@ func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk str
 			err = errors.New("auth error")
 		}
 	case "wxopenid":
-		c := secret.Account
+		c := secret.Code
 		if c == "" {
+			err = errors.New("auth error")
+		}
+	case "stuid":
+		c := secret.Code
+		if c == "" || pt != "student" {
 			err = errors.New("auth error")
 		}
 	default:
@@ -342,7 +369,7 @@ func decodeToken(token string) (uid int64, pt string, pl int64, nk string, t tim
 }
 
 func makeToken(uid int64, pt string, pl int64, nk string) (token string, err error) {
-	limit := time.Now().Add(60 * time.Minute)
+	limit := time.Now().Add(14 * 24 * time.Hour)
 	message := strconv.FormatInt(uid, 10) + "&" + pt + "&" + strconv.FormatInt(pl, 10) + "&" + nk + "&" + limit.Format(time.RFC3339)
 	token, err = aescryption.Encrypt(message)
 	return

@@ -99,3 +99,25 @@ func RegisterByPhone(c *gin.Context) {
 		"token": res.Token,
 	})
 }
+
+func GetNickname(c *gin.Context) {
+	stuid := c.PostForm("stuid")
+	if stuid == "" {
+		base.ServeError(c, "empty params access", errors.New("empty params access"))
+		return
+	}
+	secret := &authparams.AuthSecret{
+		Account:     stuid,
+		AccountType: "stuid",
+	}
+	// NOTE! res MUST BE INSTANTIATION!
+	var res = &authparams.ResWithoutToken{}
+	err := account.GetNickname(c, secret, res)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"state":    "success",
+		"nickname": res.Nickname,
+	})
+}

@@ -38,6 +38,7 @@ func main() {
 		r.POST("/auth/login", account.Login)
 		r.POST("/auth/token", account.AuthToken)
 		r.POST("/auth/register", account.RegisterByPhone)
+		r.POST("/auth/getnickname", account.GetNickname)
 	}
 	router.Run(":8000")
 }

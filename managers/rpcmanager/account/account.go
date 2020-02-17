@@ -121,3 +121,22 @@ func ConnFindUid(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret
 	}
 	return
 }
+
+func GetNickname(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+	conn, err := rpcmanager.Get("account")
+	defer conn.Close()
+	if err != nil {
+		base.ServeFatal(c, "rpcmanager.Get", err)
+		return
+	}
+	err = ConnGetNickname(c, conn, secret, res)
+	return
+}
+
+func ConnGetNickname(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+	err = conn.Call("Account.GetNickname", &secret, &res)
+	if err != nil {
+		base.ServeError(c, "Account.GetNickname", err)
+	}
+	return
+}
