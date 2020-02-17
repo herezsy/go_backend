@@ -74,3 +74,28 @@ func AuthToken(c *gin.Context) {
 		"token": res.Token,
 	})
 }
+
+func RegisterByPhone(c *gin.Context) {
+	phone := c.PostForm("phone")
+	code := c.PostForm("code")
+	if code == "" || phone == "" {
+		base.ServeError(c, "empty params access", errors.New("empty params access"))
+		return
+	}
+	secret := &authparams.AuthSecret{
+		Account:     phone,
+		AccountType: "phone",
+		Code:        code,
+		CodeType:    "code",
+	}
+	// NOTE! res MUST BE INSTANTIATION!
+	var res = &authparams.ResWithToken{}
+	err := account.Register(c, secret, res)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"state": "success",
+		"token": res.Token,
+	})
+}

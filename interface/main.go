@@ -11,7 +11,7 @@ import (
 var prefix string = "/zsy"
 
 func init() {
-	conn, err := rpcmanager.Get()
+	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
 		panic(err)
@@ -37,6 +37,7 @@ func main() {
 		r.POST("/auth/getcode", account.SendPhoneCode)
 		r.POST("/auth/login", account.Login)
 		r.POST("/auth/token", account.AuthToken)
+		r.POST("/auth/register", account.RegisterByPhone)
 	}
 	router.Run(":8000")
 }
