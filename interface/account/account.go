@@ -3,6 +3,7 @@ package account
 import (
 	"../../managers/rpcmanager/account"
 	"../../params/authparams"
+	"../../utils/regexp"
 	"../base"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -11,8 +12,8 @@ import (
 
 func SendPhoneCode(c *gin.Context) {
 	phone := c.PostForm("phone")
-	if phone == "" {
-		base.ServeError(c, "phone number empty", errors.New("phone number empty"))
+	if !regexp.RegexpPhone(phone) {
+		base.ServeError(c, "params error", errors.New("params error"))
 	}
 	secret := &authparams.AuthSecret{
 		Account:     phone,
@@ -31,8 +32,8 @@ func SendPhoneCode(c *gin.Context) {
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
-	if username == "" || password == "" {
-		base.ServeError(c, "phone number empty", errors.New("phone number empty"))
+	if !regexp.RegexpUsername(username) || !regexp.RegexpPassword(password) {
+		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
 	secret := &authparams.AuthSecret{
@@ -55,8 +56,8 @@ func Login(c *gin.Context) {
 
 func AuthToken(c *gin.Context) {
 	token := c.PostForm("token")
-	if token == "" {
-		base.ServeError(c, "none token access", errors.New("none token access"))
+	if !regexp.RegexpToken(token) {
+		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
 	secret := &authparams.AuthSecret{
@@ -78,8 +79,8 @@ func AuthToken(c *gin.Context) {
 func RegisterByPhone(c *gin.Context) {
 	phone := c.PostForm("phone")
 	code := c.PostForm("code")
-	if code == "" || phone == "" {
-		base.ServeError(c, "empty params access", errors.New("empty params access"))
+	if !regexp.RegexpPhone(phone) || !regexp.RegexpCode(code) {
+		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
 	secret := &authparams.AuthSecret{
@@ -102,8 +103,8 @@ func RegisterByPhone(c *gin.Context) {
 
 func GetNickname(c *gin.Context) {
 	stuid := c.PostForm("stuid")
-	if stuid == "" {
-		base.ServeError(c, "empty params access", errors.New("empty params access"))
+	if !regexp.RegexpStuid(stuid) {
+		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
 	secret := &authparams.AuthSecret{
