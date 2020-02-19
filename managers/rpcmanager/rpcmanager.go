@@ -1,16 +1,15 @@
 package rpcmanager
 
 import (
+	"../../settings"
 	"errors"
 	"net/rpc"
 )
 
-var accountPort = ":7744"
-
 func Get(sys string) (client *rpc.Client, err error) {
 	switch sys {
 	case "account":
-		client, err = rpc.DialHTTP("tcp", "127.0.0.1"+accountPort)
+		client, err = rpc.DialHTTP("tcp", settings.Domain+settings.PortAccount)
 	default:
 		client, err = nil, errors.New("system not exist")
 	}

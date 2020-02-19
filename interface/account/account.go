@@ -3,6 +3,7 @@ package account
 import (
 	"../../managers/rpcmanager/account"
 	"../../params/authparams"
+	"../../settings"
 	"../../utils/regexp"
 	"../base"
 	"errors"
@@ -48,7 +49,7 @@ func Login(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	c.SetCookie("token", res.Token, 1036800, "/", "localhost", http.SameSiteLaxMode, false, true)
+	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 		"token": res.Token,
@@ -73,7 +74,7 @@ func LoginByStuid(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	c.SetCookie("token", res.Token, 1036800, "/", "localhost", http.SameSiteLaxMode, false, true)
+	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 	})
@@ -170,7 +171,7 @@ func GetNickname(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
-	c.SetCookie("token", "", 0, "/", "localhost", http.SameSiteLaxMode, false, true)
+	c.SetCookie("token", "", 0, "/", settings.Domain, http.SameSiteLaxMode, false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 	})

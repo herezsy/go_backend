@@ -1,6 +1,7 @@
 package dbmanager
 
 import (
+	"../../settings"
 	"database/sql"
 	"github.com/gomodule/redigo/redis"
 	_ "github.com/lib/pq"
@@ -9,9 +10,6 @@ import (
 	"syscall"
 	"time"
 )
-
-var redisHost = ":9683"
-var connStr = "dbname=application user=postgres sslmode=disable"
 
 var redisPool *redis.Pool
 
@@ -24,7 +22,7 @@ func init() {
 		IdleTimeout: 240 * time.Second,
 
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", redisHost)
+			c, err := redis.Dial("tcp", settings.HostRedis)
 			if err != nil {
 				return nil, err
 			}
@@ -48,7 +46,7 @@ func init() {
 }
 
 func DialPG() (db *sql.DB, err error) {
-	db, err = sql.Open("postgres", connStr)
+	db, err = sql.Open("postgres", settings.StrPostgres)
 	return
 }
 

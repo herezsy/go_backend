@@ -2,14 +2,12 @@ package main
 
 import (
 	"../managers/rpcmanager"
+	"../settings"
 	"./account"
 	"errors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
-
-var prefix string = "/zsy"
-var domain string = "localhost"
 
 func init() {
 	conn, err := rpcmanager.Get("account")
@@ -33,7 +31,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	r := router.Group(prefix, account.AuthTokenNotReject)
+	r := router.Group(settings.Prefix, account.AuthTokenNotReject)
 	{
 		r.POST("/auth/getcode", account.SendPhoneCode)
 		r.POST("/auth/login", account.Login)
@@ -43,5 +41,5 @@ func main() {
 		r.POST("/auth/stuid", account.LoginByStuid)
 		r.POST("/auth/logout", account.Logout)
 	}
-	router.Run(":8000")
+	router.Run(settings.PortInterface)
 }
