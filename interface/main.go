@@ -9,6 +9,7 @@ import (
 )
 
 var prefix string = "/zsy"
+var domain string = "localhost"
 
 func init() {
 	conn, err := rpcmanager.Get("account")
@@ -32,13 +33,15 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	r := router.Group(prefix)
+	r := router.Group(prefix, account.AuthTokenNotReject)
 	{
 		r.POST("/auth/getcode", account.SendPhoneCode)
 		r.POST("/auth/login", account.Login)
-		r.POST("/auth/token", account.AuthToken)
+		r.POST("/auth/token", account.OpenAuthToken)
 		r.POST("/auth/register", account.RegisterByPhone)
 		r.POST("/auth/getnickname", account.GetNickname)
+		r.POST("/auth/stuid", account.LoginByStuid)
+		r.POST("/auth/logout", account.Logout)
 	}
 	router.Run(":8000")
 }
