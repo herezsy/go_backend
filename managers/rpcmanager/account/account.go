@@ -160,3 +160,22 @@ func ConnGetAuthProcess(c *gin.Context, conn *rpc.Client, secret *authparams.Par
 	}
 	return
 }
+
+func ChangeAuth(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
+	conn, err := rpcmanager.Get("account")
+	defer conn.Close()
+	if err != nil {
+		base.ServeFatal(c, "rpcmanager.Get", err)
+		return
+	}
+	err = ConnChangeAuth(c, conn, secret, res)
+	return
+}
+
+func ConnChangeAuth(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
+	err = conn.Call("Account.ChangeAuth", &secret, &res)
+	if err != nil {
+		base.ServeError(c, "Account.ChangeAuth", err)
+	}
+	return
+}

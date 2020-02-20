@@ -95,6 +95,30 @@ func (account *Account) AuthToken(secret *authparams.Params, res *authparams.Par
 	return nil
 }
 
+func (account *Account) ChangeAuth(secret *authparams.Params, res *authparams.Params) (err error) {
+	// auth info
+	uid, _, _, _, err := auth(secret)
+	if err != nil {
+		meetError("auth", err)
+		return err
+	}
+	switch secret.NewCodeType {
+	case "username":
+		err = supports.ChangeAccount(uid, "username", secret.NewCode)
+	case "password":
+		err = supports.ChangeAccount(uid, "password", secret.NewCode)
+	case "stuid":
+		err = supports.ChangeAccount(uid, "stuid", secret.NewCode)
+	case "wxopenid":
+		err = supports.ChangeAccount(uid, "wxopenid", secret.NewCode)
+	case "phone":
+		err = supports.ChangeAccount(uid, "phone", secret.NewCode)
+	default:
+		err = errors.New("wrong type")
+	}
+	return
+}
+
 func (account *Account) Echo(str *string, res *string) error {
 	*res = *str
 	return nil
@@ -286,14 +310,16 @@ func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string,
 
 func getInfo(secret *authparams.Params) (uid int64, password string, pt string, pl int64, nk string, err error) {
 	switch secret.AccountType {
+	case "uid":
+		uid, password, pt, pl, nk, err = supports.QueryAuth("uid", secret.Account)
 	case "phone":
-		uid, password, pt, pl, nk, err = supports.QueryAuth("phone", secret)
+		uid, password, pt, pl, nk, err = supports.QueryAuth("phone", secret.Account)
 	case "username":
-		uid, password, pt, pl, nk, err = supports.QueryAuth("username", secret)
+		uid, password, pt, pl, nk, err = supports.QueryAuth("username", secret.Account)
 	case "stuid":
-		uid, password, pt, pl, nk, err = supports.QueryAuth("stuid", secret)
+		uid, password, pt, pl, nk, err = supports.QueryAuth("stuid", secret.Account)
 	case "wxopenid":
-		uid, password, pt, pl, nk, err = supports.QueryAuth("wxopenid", secret)
+		uid, password, pt, pl, nk, err = supports.QueryAuth("wxopenid", secret.Account)
 	default:
 		err = errors.New("accountType not exist")
 	}

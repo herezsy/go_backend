@@ -63,7 +63,7 @@ func QueryProcess(uid int64, mp *map[string]string) (err error) {
 	}
 }
 
-func QueryAuth(id string, secret *authparams.Params) (uid int64, password string, pt string, pl int64, nk string, err error) {
+func QueryAuth(id string, account string) (uid int64, password string, pt string, pl int64, nk string, err error) {
 	// get connection
 	db, err := dbmanager.DialPG()
 	if err != nil {
@@ -76,7 +76,7 @@ func QueryAuth(id string, secret *authparams.Params) (uid int64, password string
 		return
 	}
 	// act
-	res, err := stmt.Query(secret.Account)
+	res, err := stmt.Query(account)
 	if err != nil {
 		return
 	}
@@ -162,6 +162,29 @@ func CreateAccount(secret *authparams.Params) (err error) {
 	if err != nil {
 		return
 	}
+	if row != 1 {
+		err = errors.New("error rows effect")
+	}
+	return
+}
+
+func ChangeAccount(uid int64, id string, target string) (err error) {
+	// get connection
+	db, err := dbmanager.DialPG()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	// prepare
+	stmt, err := db.Prepare("UPDATE account SET " + id + "=$1 WHERE uid=$2;")
+	if err != nil {
+		return
+	}
+	res, err := stmt.Exec(target, uid)
+	if err != nil {
+		return
+	}
+	row, err := res.RowsAffected()
 	if row != 1 {
 		err = errors.New("error rows effect")
 	}

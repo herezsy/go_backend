@@ -9,6 +9,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func SendPhoneCode(c *gin.Context) {
@@ -32,18 +33,17 @@ func SendPhoneCode(c *gin.Context) {
 
 func GetProcess(c *gin.Context) {
 	u, b := c.Get("uid")
-	uid := u.(int64)
 	if !b {
 		base.ServeError(c, "token info error", errors.New("token info error"))
 		return
 	}
+	uid := u.(int64)
 	secret := &authparams.Params{
 		Uid: uid,
 	}
 	res := &authparams.Params{}
 	err := account.GetAuthProcess(c, secret, res)
 	if err != nil {
-		base.ServeError(c, "account.GetAuthProcess", err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
@@ -147,7 +147,38 @@ func AuthTokenNotReject(c *gin.Context) {
 	} else {
 		c.Set("token", false)
 	}
+}
 
+func ChangePassword(c *gin.Context) {
+	u, b := c.Get("uid")
+	if !b {
+		base.ServeError(c, "token info error", errors.New("token info error"))
+		return
+	}
+	password := c.PostForm("password")
+	newPassword := c.PostForm("new_password")
+	if !regexp.RegexpPassword(password) || !regexp.RegexpPassword(newPassword) {
+		base.ServeError(c, "params error", errors.New("params error"))
+		return
+	}
+	uid := u.(int64)
+	secret := &authparams.Params{
+		Account:     strconv.FormatInt(uid, 10),
+		AccountType: "uid",
+		Code:        password,
+		CodeType:    "password",
+		NewCode:     newPassword,
+		NewCodeType: "password",
+	}
+	// NOTE! res MUST BE INSTANTIATION!
+	var res = &authparams.Params{}
+	err := account.ChangeAuth(c, secret, res)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"state": "success",
+	})
 }
 
 func RegisterByPhone(c *gin.Context) {

@@ -41,6 +41,7 @@ func main() {
 		r.POST("/auth/stuid", account.LoginByStuid)
 		r.POST("/auth/getprocess", account.GetProcess)
 		r.POST("/auth/logout", account.Logout)
+		r.POST("/auth/change", account.ChangePassword)
 	}
 	router.Run(settings.PortInterface)
 }
