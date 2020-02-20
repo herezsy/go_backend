@@ -18,7 +18,7 @@ func init() {
 	log.SetReportCaller(true)
 }
 
-func (account *Account) AuthAndGetToken(secret *authparams.AuthSecret, res *authparams.ResWithToken) error {
+func (account *Account) AuthAndGetToken(secret *authparams.Params, res *authparams.Params) error {
 	// auth info
 	uid, pt, pl, nk, err := auth(secret)
 	if err != nil {
@@ -48,7 +48,7 @@ func (account *Account) AuthAndGetToken(secret *authparams.AuthSecret, res *auth
 	return nil
 }
 
-func (account *Account) Auth(secret *authparams.AuthSecret, res *authparams.ResWithoutToken) error {
+func (account *Account) Auth(secret *authparams.Params, res *authparams.Params) error {
 	// auth info
 	uid, pt, pl, nk, err := auth(secret)
 	if err != nil {
@@ -63,7 +63,7 @@ func (account *Account) Auth(secret *authparams.AuthSecret, res *authparams.ResW
 	return nil
 }
 
-func (account *Account) AuthToken(secret *authparams.AuthSecret, res *authparams.ResWithToken) error {
+func (account *Account) AuthToken(secret *authparams.Params, res *authparams.Params) error {
 	// confirm code type
 	if secret.CodeType != "token" {
 		return errors.New("codeType wrong")
@@ -100,7 +100,7 @@ func (account *Account) Echo(str *string, res *string) error {
 	return nil
 }
 
-func (account *Account) SendCode(secret *authparams.AuthSecret, res *authparams.ResWithoutToken) error {
+func (account *Account) SendCode(secret *authparams.Params, res *authparams.Params) error {
 	// confirm account type
 	if secret.AccountType != "phone" {
 		return errors.New("accountType wrong")
@@ -128,7 +128,7 @@ func (account *Account) SendCode(secret *authparams.AuthSecret, res *authparams.
 	return err
 }
 
-func (account *Account) FindUid(secret *authparams.AuthSecret, b *int64) error {
+func (account *Account) FindUid(secret *authparams.Params, b *int64) error {
 	// get info
 	uid, _, _, _, _, err := getInfo(secret)
 	if err != nil && err.Error() != "uid not found" {
@@ -139,7 +139,7 @@ func (account *Account) FindUid(secret *authparams.AuthSecret, b *int64) error {
 	return nil
 }
 
-func (account *Account) Register(secret *authparams.AuthSecret, res *authparams.ResWithToken) error {
+func (account *Account) Register(secret *authparams.Params, res *authparams.Params) error {
 	if secret.AccountType == "phone" && secret.CodeType == "code" {
 		// phone & code Register type
 		// get code cache
@@ -196,7 +196,7 @@ func (account *Account) Register(secret *authparams.AuthSecret, res *authparams.
 	return err
 }
 
-func (account *Account) GetNickname(secret *authparams.AuthSecret, res *authparams.ResWithoutToken) error {
+func (account *Account) GetNickname(secret *authparams.Params, res *authparams.Params) error {
 	// get info
 	_, _, _, _, nk, err := getInfo(secret)
 	if err != nil && err.Error() != "uid not found" {
@@ -223,7 +223,7 @@ func meetError(action string, err error) {
 	}).Warn()
 }
 
-func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk string, err error) {
+func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string, err error) {
 	// fetch auth info
 	var password string
 	uid, password, pt, pl, nk, err = getInfo(secret)
@@ -272,7 +272,7 @@ func auth(secret *authparams.AuthSecret) (uid int64, pt string, pl int64, nk str
 	return
 }
 
-func getInfo(secret *authparams.AuthSecret) (uid int64, password string, pt string, pl int64, nk string, err error) {
+func getInfo(secret *authparams.Params) (uid int64, password string, pt string, pl int64, nk string, err error) {
 	switch secret.AccountType {
 	case "phone":
 		uid, password, pt, pl, nk, err = supports.QueryAuth("phone", secret)

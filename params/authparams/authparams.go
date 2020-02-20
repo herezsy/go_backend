@@ -1,23 +1,17 @@
 package authparams
 
-type AuthSecret struct {
+type Params struct {
 	Account     string
 	AccountType string
 	CodeType    string
 	Code        string
-}
+	NewCodeType string
+	NewCode     string
 
-type ResWithToken struct {
 	Uid            int64
 	Nickname       string
 	PrivilegeType  string
 	PrivilegeLevel int64
 	Token          string
-}
-
-type ResWithoutToken struct {
-	Uid            int64
-	Nickname       string
-	PrivilegeType  string
-	PrivilegeLevel int64
+	Process        map[string]bool
 }

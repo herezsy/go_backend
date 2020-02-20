@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func QueryAuth(id string, secret *authparams.AuthSecret) (uid int64, password string, pt string, pl int64, nk string, err error) {
+func QueryAuth(id string, secret *authparams.Params) (uid int64, password string, pt string, pl int64, nk string, err error) {
 	// get connection
 	db, err := dbmanager.DialPG()
 	if err != nil {
@@ -57,7 +57,7 @@ func QueryAuth(id string, secret *authparams.AuthSecret) (uid int64, password st
 	}
 }
 
-func CreateAccount(secret *authparams.AuthSecret) (err error) {
+func CreateAccount(secret *authparams.Params) (err error) {
 	// get connection
 	db, err := dbmanager.DialPG()
 	if err != nil {

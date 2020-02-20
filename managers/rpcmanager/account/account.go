@@ -8,7 +8,7 @@ import (
 	"net/rpc"
 )
 
-func SendCode(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+func SendCode(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -19,7 +19,7 @@ func SendCode(c *gin.Context, secret *authparams.AuthSecret, res *authparams.Res
 	return
 }
 
-func ConnSendCode(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+func ConnSendCode(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.SendCode", secret, res)
 	if err != nil {
 		base.ServeError(c, "Account.SendCode", err)
@@ -27,7 +27,7 @@ func ConnSendCode(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecre
 	return
 }
 
-func AuthAndGetToken(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithToken) (err error) {
+func AuthAndGetToken(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -38,7 +38,7 @@ func AuthAndGetToken(c *gin.Context, secret *authparams.AuthSecret, res *authpar
 	return
 }
 
-func ConnAuthAndGetToken(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithToken) (err error) {
+func ConnAuthAndGetToken(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.AuthAndGetToken", &secret, &res)
 	if err != nil {
 		base.ServeError(c, "Account.AuthAndGetToken", err)
@@ -46,7 +46,7 @@ func ConnAuthAndGetToken(c *gin.Context, conn *rpc.Client, secret *authparams.Au
 	return
 }
 
-func Auth(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+func Auth(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -57,7 +57,7 @@ func Auth(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWith
 	return
 }
 
-func ConnAuth(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+func ConnAuth(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.Auth", &secret, &res)
 	if err != nil {
 		base.ServeError(c, "Account.Auth", err)
@@ -65,7 +65,7 @@ func ConnAuth(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, r
 	return
 }
 
-func AuthToken(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithToken) (err error) {
+func AuthToken(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -76,7 +76,7 @@ func AuthToken(c *gin.Context, secret *authparams.AuthSecret, res *authparams.Re
 	return
 }
 
-func ConnAuthToken(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithToken) (err error) {
+func ConnAuthToken(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.AuthToken", &secret, &res)
 	if err != nil {
 		base.ServeError(c, "Account.AuthToken", err)
@@ -84,7 +84,7 @@ func ConnAuthToken(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecr
 	return
 }
 
-func Register(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithToken) (err error) {
+func Register(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -95,7 +95,7 @@ func Register(c *gin.Context, secret *authparams.AuthSecret, res *authparams.Res
 	return
 }
 
-func ConnRegister(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithToken) (err error) {
+func ConnRegister(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.Register", &secret, &res)
 	if err != nil {
 		base.ServeError(c, "Account.Register", err)
@@ -103,7 +103,7 @@ func ConnRegister(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecre
 	return
 }
 
-func FindUid(c *gin.Context, secret *authparams.AuthSecret, b *int64) (err error) {
+func FindUid(c *gin.Context, secret *authparams.Params, b *int64) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -114,7 +114,7 @@ func FindUid(c *gin.Context, secret *authparams.AuthSecret, b *int64) (err error
 	return
 }
 
-func ConnFindUid(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, b *int64) (err error) {
+func ConnFindUid(c *gin.Context, conn *rpc.Client, secret *authparams.Params, b *int64) (err error) {
 	err = conn.Call("Account.FindUid", &secret, &b)
 	if err != nil {
 		base.ServeError(c, "Account.FindUid", err)
@@ -122,7 +122,7 @@ func ConnFindUid(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret
 	return
 }
 
-func GetNickname(c *gin.Context, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+func GetNickname(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
 	conn, err := rpcmanager.Get("account")
 	defer conn.Close()
 	if err != nil {
@@ -133,7 +133,7 @@ func GetNickname(c *gin.Context, secret *authparams.AuthSecret, res *authparams.
 	return
 }
 
-func ConnGetNickname(c *gin.Context, conn *rpc.Client, secret *authparams.AuthSecret, res *authparams.ResWithoutToken) (err error) {
+func ConnGetNickname(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.GetNickname", &secret, &res)
 	if err != nil {
 		base.ServeError(c, "Account.GetNickname", err)

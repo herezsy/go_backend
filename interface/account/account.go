@@ -16,11 +16,11 @@ func SendPhoneCode(c *gin.Context) {
 	if !regexp.RegexpPhone(phone) {
 		base.ServeError(c, "params error", errors.New("params error"))
 	}
-	secret := &authparams.AuthSecret{
+	secret := &authparams.Params{
 		Account:     phone,
 		AccountType: "phone",
 	}
-	var res = &authparams.ResWithoutToken{}
+	var res = &authparams.Params{}
 	err := account.SendCode(c, secret, res)
 	if err != nil {
 		return
@@ -37,14 +37,14 @@ func Login(c *gin.Context) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
-	secret := &authparams.AuthSecret{
+	secret := &authparams.Params{
 		Account:     username,
 		AccountType: "username",
 		Code:        password,
 		CodeType:    "password",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
-	var res = &authparams.ResWithToken{}
+	var res = &authparams.Params{}
 	err := account.AuthAndGetToken(c, secret, res)
 	if err != nil {
 		return
@@ -62,14 +62,14 @@ func LoginByStuid(c *gin.Context) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
-	secret := &authparams.AuthSecret{
+	secret := &authparams.Params{
 		Account:     stuid,
 		AccountType: "stuid",
 		Code:        stuid,
 		CodeType:    "stuid",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
-	var res = &authparams.ResWithToken{}
+	var res = &authparams.Params{}
 	err := account.AuthAndGetToken(c, secret, res)
 	if err != nil {
 		return
@@ -102,12 +102,12 @@ func OpenAuthToken(c *gin.Context) {
 func AuthTokenNotReject(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err == nil && regexp.RegexpToken(token) {
-		secret := &authparams.AuthSecret{
+		secret := &authparams.Params{
 			Code:     token,
 			CodeType: "token",
 		}
 		// NOTE! res MUST BE INSTANTIATION!
-		var res = &authparams.ResWithToken{}
+		var res = &authparams.Params{}
 		err = account.AuthToken(c, secret, res)
 		if err != nil {
 			return
@@ -130,14 +130,14 @@ func RegisterByPhone(c *gin.Context) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
-	secret := &authparams.AuthSecret{
+	secret := &authparams.Params{
 		Account:     phone,
 		AccountType: "phone",
 		Code:        code,
 		CodeType:    "code",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
-	var res = &authparams.ResWithToken{}
+	var res = &authparams.Params{}
 	err := account.Register(c, secret, res)
 	if err != nil {
 		return
@@ -154,12 +154,12 @@ func GetNickname(c *gin.Context) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
-	secret := &authparams.AuthSecret{
+	secret := &authparams.Params{
 		Account:     stuid,
 		AccountType: "stuid",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
-	var res = &authparams.ResWithoutToken{}
+	var res = &authparams.Params{}
 	err := account.GetNickname(c, secret, res)
 	if err != nil {
 		return
