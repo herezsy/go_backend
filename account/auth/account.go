@@ -216,6 +216,18 @@ func (account *Account) GetNickname(secret *authparams.Params, res *authparams.P
 	return nil
 }
 
+func (account *Account) GetAuthProcess(secret *authparams.Params, res *authparams.Params) error {
+	uid := secret.Uid
+	if uid == 0 {
+		return errors.New("uid is empty")
+	}
+	err := supports.QueryProcess(uid, &(res.Process))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func meetError(action string, err error) {
 	log.WithFields(log.Fields{
 		"action": action,

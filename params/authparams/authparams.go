@@ -13,5 +13,5 @@ type Params struct {
 	PrivilegeType  string
 	PrivilegeLevel int64
 	Token          string
-	Process        map[string]bool
+	Process        map[string]string
 }

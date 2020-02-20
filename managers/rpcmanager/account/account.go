@@ -78,9 +78,10 @@ func AuthToken(c *gin.Context, secret *authparams.Params, res *authparams.Params
 
 func ConnAuthToken(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
 	err = conn.Call("Account.AuthToken", &secret, &res)
-	if err != nil {
-		base.ServeError(c, "Account.AuthToken", err)
-	}
+	// not reject!
+	//if err != nil {
+	//	base.ServeError(c, "Account.AuthToken", err)
+	//}
 	return
 }
 
@@ -137,6 +138,25 @@ func ConnGetNickname(c *gin.Context, conn *rpc.Client, secret *authparams.Params
 	err = conn.Call("Account.GetNickname", &secret, &res)
 	if err != nil {
 		base.ServeError(c, "Account.GetNickname", err)
+	}
+	return
+}
+
+func GetAuthProcess(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
+	conn, err := rpcmanager.Get("account")
+	defer conn.Close()
+	if err != nil {
+		base.ServeFatal(c, "rpcmanager.Get", err)
+		return
+	}
+	err = ConnGetAuthProcess(c, conn, secret, res)
+	return
+}
+
+func ConnGetAuthProcess(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
+	err = conn.Call("Account.GetAuthProcess", &secret, &res)
+	if err != nil {
+		base.ServeError(c, "Account.GetAuthProcess", err)
 	}
 	return
 }

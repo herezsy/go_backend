@@ -30,6 +30,32 @@ func SendPhoneCode(c *gin.Context) {
 	})
 }
 
+func GetProcess(c *gin.Context) {
+	u, b := c.Get("uid")
+	uid := u.(int64)
+	if !b {
+		base.ServeError(c, "token info error", errors.New("token info error"))
+		return
+	}
+	secret := &authparams.Params{
+		Uid: uid,
+	}
+	res := &authparams.Params{}
+	err := account.GetAuthProcess(c, secret, res)
+	if err != nil {
+		base.ServeError(c, "account.GetAuthProcess", err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"state":    "success",
+		"username": res.Process["username"],
+		"password": res.Process["password"],
+		"stuid":    res.Process["stuid"],
+		"phone":    res.Process["phone"],
+		"wxopenid": res.Process["wxopenid"],
+	})
+}
+
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
@@ -110,6 +136,7 @@ func AuthTokenNotReject(c *gin.Context) {
 		var res = &authparams.Params{}
 		err = account.AuthToken(c, secret, res)
 		if err != nil {
+			c.Set("token", false)
 			return
 		}
 		c.Set("pt", res.PrivilegeType)

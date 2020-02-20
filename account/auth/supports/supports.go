@@ -13,6 +13,56 @@ import (
 	"time"
 )
 
+func QueryProcess(uid int64, mp *map[string]string) (err error) {
+	// get connection
+	db, err := dbmanager.DialPG()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	// prepare
+	stmt, err := db.Prepare("SELECT username, password, phone, stuid, wxopenid FROM account WHERE uid=$1")
+	if err != nil {
+		return
+	}
+	// act
+	res, err := stmt.Query(uid)
+	if err != nil {
+		return
+	}
+	if res.Next() {
+		var nun, npw, nph, nst, nwx sql.NullString
+		err = res.Scan(&nun, &npw, &nph, &nst, &nwx)
+		// must allocate memory for mp
+		*mp = make(map[string]string)
+		m := *mp
+		m["username"] = nun.String
+		//m["password"] = npw.String
+		if npw.String != "" {
+			m["password"] = "set"
+		} else {
+			m["password"] = ""
+		}
+		m["phone"] = nph.String
+		m["stuid"] = nst.String
+		m["wxopenid"] = nwx.String
+		log.WithFields(log.Fields{
+			"action":   "queryAuth",
+			"error":    err,
+			"uid":      uid,
+			"username": nun,
+			"password": npw,
+			"phone":    nph,
+			"stuid":    nst,
+			"wxopenid": nwx,
+		}).Info()
+		return
+	} else {
+		err = errors.New("uid not found")
+		return
+	}
+}
+
 func QueryAuth(id string, secret *authparams.Params) (uid int64, password string, pt string, pl int64, nk string, err error) {
 	// get connection
 	db, err := dbmanager.DialPG()

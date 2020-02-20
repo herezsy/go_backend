@@ -39,6 +39,7 @@ func main() {
 		r.POST("/auth/register", account.RegisterByPhone)
 		r.POST("/auth/getnickname", account.GetNickname)
 		r.POST("/auth/stuid", account.LoginByStuid)
+		r.POST("/auth/getprocess", account.GetProcess)
 		r.POST("/auth/logout", account.Logout)
 	}
 	router.Run(settings.PortInterface)
