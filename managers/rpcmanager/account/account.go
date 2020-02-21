@@ -179,3 +179,22 @@ func ConnChangeAuth(c *gin.Context, conn *rpc.Client, secret *authparams.Params,
 	}
 	return
 }
+
+func AuthConfirm(c *gin.Context, secret *authparams.Params, res *authparams.Params) (err error) {
+	conn, err := rpcmanager.Get("account")
+	defer conn.Close()
+	if err != nil {
+		base.ServeFatal(c, "rpcmanager.Get", err)
+		return
+	}
+	err = ConnAuthConfirm(c, conn, secret, res)
+	return
+}
+
+func ConnAuthConfirm(c *gin.Context, conn *rpc.Client, secret *authparams.Params, res *authparams.Params) (err error) {
+	err = conn.Call("Account.AuthConfirm", &secret, &res)
+	if err != nil {
+		base.ServeError(c, "Account.AuthConfirm", err)
+	}
+	return
+}
