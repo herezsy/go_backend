@@ -3,6 +3,7 @@ package supports
 import (
 	"../../../managers/dbmanager"
 	"../../../params/authparams"
+	"../../../utils/randworker"
 	"../../aescryption"
 	"database/sql"
 	"errors"
@@ -233,5 +234,70 @@ func MakeToken(uid int64, pt string, pl int64, nk string) (token string, err err
 		"time":   limit,
 		"token":  token,
 	}).Info()
+	return
+}
+
+func MakeSecret(uid int64) (token string, err error) {
+	token = randworker.GetAlnumString(32)
+	_, err = dbmanager.SetCacheWithPX("secret&uid="+strconv.FormatInt(uid, 10), token, 300000)
+	log.WithFields(log.Fields{
+		"action": "makeSecret",
+		"error":  err,
+		"uid":    uid,
+		"token":  token,
+	}).Info()
+	return
+}
+
+func CheckSecret(uid int64, token string) (err error) {
+	res, err := dbmanager.GetCache("secret&uid=" + strconv.FormatInt(uid, 10))
+	if err != nil {
+		return
+	}
+	if res != token {
+		err = errors.New("secret incorrect")
+	} else {
+		_, err = dbmanager.DelCache("secret&uid=" + strconv.FormatInt(uid, 10))
+	}
+	return
+}
+
+func SendCodeWithPhone(phone string) (err error) {
+	str := "auth&phone=" + phone
+	_, err = dbmanager.SetCacheWithPX(str, randworker.GetNumbersString(4), 300000)
+	return
+}
+
+func CheckCodeWithPhone(phone string, code string) (err error) {
+	str := "auth&phone=" + phone
+	c, err := dbmanager.GetCache(str)
+	if err != nil {
+		return
+	}
+	if code == "" || c != code {
+		err = errors.New("incorrect")
+	} else {
+		_, err = dbmanager.DelCache(str)
+	}
+	return
+}
+
+func SendCodeWithUid(uid int64) (err error) {
+	str := "auth&uid=" + strconv.FormatInt(uid, 10)
+	_, err = dbmanager.SetCacheWithPX(str, randworker.GetNumbersString(4), 300000)
+	return
+}
+
+func CheckCodeWithUid(uid int64, code string) (err error) {
+	str := "auth&uid=" + strconv.FormatInt(uid, 10)
+	c, err := dbmanager.GetCache(str)
+	if err != nil {
+		return
+	}
+	if code == "" || c != code {
+		err = errors.New("incorrect")
+	} else {
+		_, err = dbmanager.DelCache(str)
+	}
 	return
 }

@@ -42,6 +42,7 @@ func main() {
 		r.POST("/auth/getprocess", account.GetProcess)
 		r.POST("/auth/logout", account.Logout)
 		r.POST("/auth/change", account.ChangePassword)
+		r.POST("/auth/getpromise", account.GetPromiseByPassword)
 	}
 	router.Run(settings.PortInterface)
 }

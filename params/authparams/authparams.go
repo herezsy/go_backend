@@ -5,8 +5,6 @@ type Params struct {
 	AccountType string
 	CodeType    string
 	Code        string
-	NewCodeType string
-	NewCode     string
 
 	Uid            int64
 	Nickname       string

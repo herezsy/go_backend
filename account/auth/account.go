@@ -1,14 +1,11 @@
 package auth
 
 import (
-	"../../managers/dbmanager"
 	"../../params/authparams"
-	"../../utils/randworker"
 	"./supports"
 	"errors"
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 	"time"
 )
 
@@ -55,21 +52,24 @@ func (account *Account) Auth(secret *authparams.Params, res *authparams.Params) 
 		meetError("auth", err)
 		return err
 	}
+	// make secret
+	token, err := supports.MakeSecret(uid)
+	if err != nil {
+		meetError("supports.MakeSecret", err)
+		return err
+	}
 	// assign
 	res.Uid = uid
 	res.Nickname = nk
 	res.PrivilegeType = pt
 	res.PrivilegeLevel = pl
+	res.Token = token
 	return nil
 }
 
 func (account *Account) AuthToken(secret *authparams.Params, res *authparams.Params) error {
-	// confirm code type
-	if secret.CodeType != "token" {
-		return errors.New("codeType wrong")
-	}
 	// get message from token
-	uid, pt, pl, nk, t, err := supports.DecodeToken(secret.Code)
+	uid, pt, pl, nk, t, err := supports.DecodeToken(secret.Token)
 	if err != nil {
 		meetError("decodeToken", err)
 		return err
@@ -96,23 +96,34 @@ func (account *Account) AuthToken(secret *authparams.Params, res *authparams.Par
 }
 
 func (account *Account) ChangeAuth(secret *authparams.Params, res *authparams.Params) (err error) {
-	// auth info
-	uid, _, _, _, err := auth(secret)
+	// auth secret
+	err = supports.CheckSecret(secret.Uid, secret.Token)
 	if err != nil {
-		meetError("auth", err)
-		return err
+		meetError("supports.CheckSecret", err)
+		return
 	}
-	switch secret.NewCodeType {
+	// apply change
+	switch secret.AccountType {
 	case "username":
-		err = supports.ChangeAccount(uid, "username", secret.NewCode)
-	case "password":
-		err = supports.ChangeAccount(uid, "password", secret.NewCode)
-	case "stuid":
-		err = supports.ChangeAccount(uid, "stuid", secret.NewCode)
-	case "wxopenid":
-		err = supports.ChangeAccount(uid, "wxopenid", secret.NewCode)
+		err = supports.ChangeAccount(secret.Uid, "username", secret.Account)
 	case "phone":
-		err = supports.ChangeAccount(uid, "phone", secret.NewCode)
+		err = supports.CheckCodeWithPhone(secret.Account, secret.Token)
+		if err != nil {
+			return
+		}
+		err = supports.ChangeAccount(secret.Uid, "phone", secret.Account)
+	case "stuid":
+		err = supports.ChangeAccount(secret.Uid, "stuid", secret.Account)
+	case "":
+	default:
+		err = errors.New("wrong type")
+	}
+	switch secret.CodeType {
+	case "password":
+		err = supports.ChangeAccount(secret.Uid, "password", secret.Code)
+	case "wxopenid":
+		err = supports.ChangeAccount(secret.Uid, "wxopenid", secret.Code)
+	case "":
 	default:
 		err = errors.New("wrong type")
 	}
@@ -135,19 +146,13 @@ func (account *Account) SendCode(secret *authparams.Params, res *authparams.Para
 		meetError("auth", err)
 		return err
 	}
-	var str string
 	if err != nil && err.Error() == "uid not found" {
 		// no-register type
-		str = "auth&phone=" + secret.Account
+		err = nil
+		err = supports.SendCodeWithPhone(secret.Account)
 	} else {
 		// register type
-		str = "auth&uid=" + strconv.FormatInt(uid, 10)
-	}
-	err = nil
-	// set cache
-	_, err = dbmanager.SetCacheWithPX(str, randworker.GetNumbersString(4), 300000)
-	if err != nil {
-		meetError("SetCacheWithPX", err)
+		err = supports.SendCodeWithUid(uid)
 	}
 	return err
 }
@@ -166,26 +171,10 @@ func (account *Account) FindUid(secret *authparams.Params, b *int64) error {
 func (account *Account) Register(secret *authparams.Params, res *authparams.Params) error {
 	if secret.AccountType == "phone" && secret.CodeType == "code" {
 		// phone & code Register type
-		// get code cache
-		code, err := dbmanager.GetCache("auth&phone=" + secret.Account)
-		if err != nil {
-			meetError("dbmanager.GetCache", err)
-			return err
-		}
 		// auth code
-		c := secret.Code
-		if c == "" || code != c {
-			// wrong code
-			err = errors.New("auth error")
+		err := supports.CheckCodeWithPhone(secret.Account, secret.Token)
+		if err != nil {
 			return err
-		} else {
-			// correct code
-			// delete code cache
-			_, err = dbmanager.DelCache("auth&phone=" + secret.Account)
-			if err != nil {
-				meetError("dbmanager.DelCache", err)
-				return err
-			}
 		}
 	} else if secret.AccountType == "username" && secret.CodeType == "password" {
 		// username & password Register type
@@ -267,20 +256,29 @@ func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string,
 		return
 	}
 	// auth
+	switch secret.AccountType {
+	case "wxopenid":
+		// wxOpenid auth
+		// NOTE! Only internally available! it's Danger!
+		c := secret.Account
+		if c == "" {
+			err = errors.New("auth error")
+		}
+	case "stuid":
+		// stuid auth
+		// privilege type must be student
+		c := secret.Account
+		if c == "" || pt != "student" {
+			err = errors.New("auth error")
+		}
+	}
 	switch secret.CodeType {
 	case "code":
 		// code auth
 		// get code from cache
-		var code string
-		code, err = dbmanager.GetCache("auth&uid=" + strconv.FormatInt(uid, 10))
-		c := secret.Code
-		if c == "" || code != c {
-			// invalid
-			err = errors.New("auth error")
-		} else {
-			// valid
-			// delete cache
-			_, err = dbmanager.DelCache("auth&uid=" + strconv.FormatInt(uid, 10))
+		err = supports.CheckCodeWithUid(uid, secret.Token)
+		if err != nil {
+			return
 		}
 	case "password":
 		// password auth
@@ -288,20 +286,7 @@ func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string,
 		if c == "" || password != c {
 			err = errors.New("auth error")
 		}
-	case "wxopenid":
-		// wxOpenid auth
-		// NOTE! Only internally available! it's Danger!
-		c := secret.Code
-		if c == "" {
-			err = errors.New("auth error")
-		}
-	case "stuid":
-		// stuid auth
-		// privilege type must be student
-		c := secret.Code
-		if c == "" || pt != "student" {
-			err = errors.New("auth error")
-		}
+	case "":
 	default:
 		err = errors.New("codeType not exist")
 	}

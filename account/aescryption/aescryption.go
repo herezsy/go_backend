@@ -1,13 +1,12 @@
 package aescryption
 
 import (
+	"../../utils/randworker"
 	"crypto/aes"
-	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"math/big"
 )
 
 var key []byte
@@ -18,13 +17,7 @@ func init() {
 }
 
 func newKey() []byte {
-	a := new(big.Int).SetUint64(uint64(255))
-
-	key := make([]byte, 16)
-	for i, _ := range key {
-		r, _ := rand.Int(rand.Reader, a)
-		key[i] = r.Bytes()[0]
-	}
+	key = randworker.GetBytes(16)
 	fmt.Println(key)
 	return key
 }

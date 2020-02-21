@@ -91,8 +91,6 @@ func LoginByStuid(c *gin.Context) {
 	secret := &authparams.Params{
 		Account:     stuid,
 		AccountType: "stuid",
-		Code:        stuid,
-		CodeType:    "stuid",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
 	var res = &authparams.Params{}
@@ -129,8 +127,7 @@ func AuthTokenNotReject(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if err == nil && regexp.RegexpToken(token) {
 		secret := &authparams.Params{
-			Code:     token,
-			CodeType: "token",
+			Token: token,
 		}
 		// NOTE! res MUST BE INSTANTIATION!
 		var res = &authparams.Params{}
@@ -155,20 +152,18 @@ func ChangePassword(c *gin.Context) {
 		base.ServeError(c, "token info error", errors.New("token info error"))
 		return
 	}
-	password := c.PostForm("password")
-	newPassword := c.PostForm("new_password")
-	if !regexp.RegexpPassword(password) || !regexp.RegexpPassword(newPassword) {
+	token := c.PostForm("token")
+	newPassword := c.PostForm("password")
+	if !regexp.RegexpPassword(newPassword) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
 	uid := u.(int64)
 	secret := &authparams.Params{
-		Account:     strconv.FormatInt(uid, 10),
-		AccountType: "uid",
-		Code:        password,
-		CodeType:    "password",
-		NewCode:     newPassword,
-		NewCodeType: "password",
+		Uid:      uid,
+		Code:     newPassword,
+		CodeType: "password",
+		Token:    token,
 	}
 	// NOTE! res MUST BE INSTANTIATION!
 	var res = &authparams.Params{}
@@ -178,6 +173,36 @@ func ChangePassword(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
+	})
+}
+
+func GetPromiseByPassword(c *gin.Context) {
+	u, b := c.Get("uid")
+	if !b {
+		base.ServeError(c, "token info error", errors.New("token info error"))
+		return
+	}
+	password := c.PostForm("password")
+	if !regexp.RegexpPassword(password) {
+		base.ServeError(c, "params error", errors.New("params error"))
+		return
+	}
+	uid := u.(int64)
+	secret := &authparams.Params{
+		Account:     strconv.FormatInt(uid, 10),
+		AccountType: "uid",
+		Code:        password,
+		CodeType:    "password",
+	}
+	// NOTE! res MUST BE INSTANTIATION!
+	var res = &authparams.Params{}
+	err := account.Auth(c, secret, res)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"state": "success",
+		"token": res.Token,
 	})
 }
 
@@ -191,8 +216,8 @@ func RegisterByPhone(c *gin.Context) {
 	secret := &authparams.Params{
 		Account:     phone,
 		AccountType: "phone",
-		Code:        code,
 		CodeType:    "code",
+		Token:       code,
 	}
 	// NOTE! res MUST BE INSTANTIATION!
 	var res = &authparams.Params{}
