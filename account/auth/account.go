@@ -67,6 +67,15 @@ func (account *Account) Auth(secret *authparams.Params, res *authparams.Params) 
 	return nil
 }
 
+func (account *Account) AuthConfirm(secret *authparams.Params, res *authparams.Params) (err error) {
+	// auth secret
+	err = supports.CheckSecret(secret.Uid, secret.Token)
+	if err != nil {
+		meetError("supports.CheckSecret", err)
+	}
+	return
+}
+
 func (account *Account) AuthToken(secret *authparams.Params, res *authparams.Params) error {
 	// get message from token
 	uid, pt, pl, nk, t, err := supports.DecodeToken(secret.Token)
