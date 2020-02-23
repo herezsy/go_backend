@@ -3,16 +3,6 @@
     margin: 0;
 }
 
-.t {
-    font-size: 3vw;
-    line-height: 9vw;
-    text-align: center;
-    width: 100vw;
-    height: 9vw;
-    color: rgba(255,255,255,0.85);
-    background: rgba(255, 0, 0, 0.75);
-}
-
 .cTitle {
     display: flex;
     justify-content: center;
@@ -47,20 +37,19 @@
 
 .cInfo {
     display: flex;
-    width: 64vw;
-    margin: 1vw 18vw;
+    width: 74vw;
+    margin: 1vw 13vw;
     color: rgba(0,0,0,0.6);
     justify-content: space-between;
     align-items: center;
     font-size: 3.4vw;
     line-height: 8vw;
-
 }
 
 .cRow {
     display: flex;
-    width: 64vw;
-    margin: 4vw 18vw;
+    width: 74vw;
+    margin: 4vw 13vw;
     justify-content: center;
     align-items: center;
 }
@@ -69,7 +58,7 @@
     background: rgba(66, 62, 255, 0.93);
     height: 8vw;
     width: 64vw;
-    margin: 4vw 18vw 2vw 18vw;
+    margin: 8vw 18vw 2vw 18vw;
     color: rgba(255,255,255,0.95);
     font-weight: 600;
     font-size: 3vw;
@@ -82,7 +71,7 @@
     color: rgba(0,0,0,0.75);
     font-size: 3vw;
     line-height: 8vw;
-    width: 12.8vw;
+    width: 15%;
     height: 8vw;
     text-align: center;
     font-weight: 700;
@@ -90,7 +79,8 @@
 
 .cRight {
     color: rgba(0,0,0,0.52);
-    width: 51.2vw;
+    /*width: 51.2vw;*/
+    width: 85%;
     font-size: 3vw;
     line-height: 8vw;
     height: 8vw;
@@ -99,7 +89,7 @@
 
 .cInput {
     color: rgba(0,0,0,0.52);
-    width: 45.2vw;
+    width: 54vw;
     font-size: 3vw;
     line-height: 8vw;
     height: 8vw;

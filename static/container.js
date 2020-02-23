@@ -23,7 +23,7 @@ var Container = function (_React$Component) {
 
         _this.state = {
             title: "第八季第一期",
-            token: "asddas",
+            token: "",
             deadLine: "2020-2-24 19:30:00"
         };
         return _this;
@@ -36,15 +36,6 @@ var Container = function (_React$Component) {
             return React.createElement(
                 "div",
                 null,
-                React.createElement(
-                    "div",
-                    { className: "t" },
-                    React.createElement(
-                        "p",
-                        null,
-                        "\u9752\u5E74\u5927\u5B66\u4E60"
-                    )
-                ),
                 React.createElement(
                     "div",
                     { className: "cTitle" },
@@ -63,9 +54,9 @@ var Container = function (_React$Component) {
                         React.createElement(
                             "p",
                             null,
-                            "\u5C06\u4E8E ",
+                            "\u8BF7\u4E8E ",
                             this.state.deadLine,
-                            " \u524D\u622A\u6B62\u63D0\u4EA4"
+                            " \u524D\u63D0\u4EA4"
                         )
                     )
                 ),
