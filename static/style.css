@@ -1,0 +1,120 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.t {
+    font-size: 3vw;
+    line-height: 9vw;
+    text-align: center;
+    width: 100vw;
+    height: 9vw;
+    color: rgba(255,255,255,0.85);
+    background: rgba(255, 0, 0, 0.75);
+}
+
+.cTitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5vw;
+    color: rgba(255,255,255,0.85);
+    line-height: 10vw;
+    font-weight: 700;
+    text-align: center;
+    width: 100vw;
+    height: 30vw;
+    background: rgba(255, 0, 0, 0.75);
+    border: solid 1px rgba(255, 0, 0, 0.75);
+}
+
+.cMain {
+    width: 100vw;
+}
+
+.cMainContain {
+    text-align: center;
+    margin: 6vw auto;
+}
+
+.cTopContain {
+    text-align: center;
+    margin: 6vw auto;
+    line-height: 12vw;
+    font-size: 3.4vw;
+    color: rgba(0,0,0,0.75);
+}
+
+.cInfo {
+    display: flex;
+    width: 64vw;
+    margin: 1vw 18vw;
+    color: rgba(0,0,0,0.6);
+    justify-content: space-between;
+    align-items: center;
+    font-size: 3.4vw;
+    line-height: 8vw;
+
+}
+
+.cRow {
+    display: flex;
+    width: 64vw;
+    margin: 4vw 18vw;
+    justify-content: center;
+    align-items: center;
+}
+
+.cConfirm {
+    background: rgba(66, 62, 255, 0.93);
+    height: 8vw;
+    width: 64vw;
+    margin: 4vw 18vw 2vw 18vw;
+    color: rgba(255,255,255,0.95);
+    font-weight: 600;
+    font-size: 3vw;
+    line-height: 8vw;
+    text-align: center;
+    border-radius: 1vw;
+}
+
+.cLeft {
+    color: rgba(0,0,0,0.75);
+    font-size: 3vw;
+    line-height: 8vw;
+    width: 12.8vw;
+    height: 8vw;
+    text-align: center;
+    font-weight: 700;
+}
+
+.cRight {
+    color: rgba(0,0,0,0.52);
+    width: 51.2vw;
+    font-size: 3vw;
+    line-height: 8vw;
+    height: 8vw;
+    text-align: left;
+}
+
+.cInput {
+    color: rgba(0,0,0,0.52);
+    width: 45.2vw;
+    font-size: 3vw;
+    line-height: 8vw;
+    height: 8vw;
+    border: solid 0.1vw rgba(0,0,0,0.1);
+    border-radius: 1vw;
+    padding: 0 3vw;
+}
+
+.cImg {
+    margin: auto 18vw;
+    width: 64vw;
+}
+
+.cTip {
+    margin: 3vw auto;
+    font-size: 3vw;
+    color: rgba(0,0,0,0.4);
+}

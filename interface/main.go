@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 func init() {
@@ -44,5 +45,6 @@ func main() {
 		r.POST("/auth/change", account.ChangePassword)
 		r.POST("/auth/getpromise", account.GetPromiseByPassword)
 	}
+	router.StaticFS("/qndxx", http.Dir("./static"))
 	router.Run(settings.PortInterface)
 }
