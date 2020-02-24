@@ -21,7 +21,8 @@ var Main = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).call(this, props));
 
         _this.state = {
-            imgSrc: "./img/kp.jpg"
+            imgSrc: "./img/kp.jpg",
+            t: ""
         };
         return _this;
     }
@@ -29,6 +30,8 @@ var Main = function (_React$Component) {
     _createClass(Main, [{
         key: "render",
         value: function render() {
+            var _this2 = this;
+
             var imgSrc = this.state.imgSrc;
             return React.createElement(
                 "div",
@@ -53,19 +56,64 @@ var Main = function (_React$Component) {
                         React.createElement(
                             "div",
                             { className: "cConfirm" },
+                            this.props.loading ? React.createElement(
+                                "div",
+                                {
+                                    className: "cButton",
+                                    style: { background: 'rgba(0,0,0,0.3)' }
+                                },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "\u4E0A\u4F20\u4E2D..."
+                                )
+                            ) : React.createElement(
+                                "div",
+                                {
+                                    className: "cButton",
+                                    onClick: function onClick() {
+                                        _this2.props.setLoading(true);
+                                        window.fetch(new Request("/echo", {
+                                            method: "GET",
+                                            credentials: "same-origin",
+                                            body: JSON.stringify({
+                                                f: "pf"
+                                            })
+                                        })).then(function (response) {
+                                            return response.json();
+                                        }).then(function (e) {
+                                            _this2.setState({
+                                                t: e.time
+                                            });
+                                        });
+                                        _this2.props.setLoading(true);
+                                    }
+                                },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    imgSrc === "" ? "上传" : "重新上传"
+                                )
+                            ),
                             React.createElement(
-                                "p",
-                                null,
-                                imgSrc === "" ? "上传" : "重新上传"
-                            )
-                        ),
-                        React.createElement(
-                            "div",
-                            { className: "cTip" },
+                                "div",
+                                { className: "cTip" },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "\u4E0A\u4F20\u540E\uFF0C\u56FE\u7247\u5C06\u88AB\u81EA\u52A8\u91CD\u547D\u540D\u81F3\u7B26\u5408\u8981\u6C42\u3002"
+                                )
+                            ),
                             React.createElement(
-                                "p",
-                                null,
-                                "\u4E0A\u4F20\u540E\uFF0C\u56FE\u7247\u5C06\u88AB\u81EA\u52A8\u91CD\u547D\u540D\u81F3\u7B26\u5408\u8981\u6C42\u3002"
+                                "div",
+                                { className: "cTip" },
+                                React.createElement(
+                                    "p",
+                                    null,
+                                    "| ",
+                                    this.state.t,
+                                    " |"
+                                )
                             )
                         )
                     )

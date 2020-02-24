@@ -84,7 +84,7 @@ var Login = function (_React$Component) {
                             )
                         )
                     ),
-                    React.createElement(
+                    this.props.usePassword ? React.createElement(
                         "div",
                         { className: "cRow" },
                         React.createElement(
@@ -109,14 +109,31 @@ var Login = function (_React$Component) {
                                 }
                             })
                         )
-                    ),
+                    ) : null,
                     React.createElement(
                         "div",
                         { className: "cConfirm" },
-                        React.createElement(
-                            "p",
-                            null,
-                            "\u8FDB\u5165"
+                        this.props.loading ? React.createElement(
+                            "div",
+                            {
+                                className: "cButton",
+                                style: { background: 'rgba(0,0,0,0.3)' }
+                            },
+                            React.createElement(
+                                "p",
+                                null,
+                                "\u786E\u8BA4\u4E2D..."
+                            )
+                        ) : React.createElement(
+                            "div",
+                            {
+                                className: "cButton"
+                            },
+                            React.createElement(
+                                "p",
+                                null,
+                                "\u767B\u5F55"
+                            )
                         )
                     )
                 )

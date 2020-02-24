@@ -21,10 +21,24 @@ var Container = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this, props));
 
+        _this.setToken = function (e) {
+            return _this.setState({
+                token: e
+            });
+        };
+
+        _this.setLoading = function (e) {
+            return _this.setState({
+                loading: e
+            });
+        };
+
         _this.state = {
             title: "第八季第一期",
-            token: "",
-            deadLine: "2020-2-24 19:30:00"
+            token: "asdsda",
+            deadLine: "2020-2-24 19:30:00",
+            loading: true,
+            usePassword: false
         };
         return _this;
     }
@@ -47,20 +61,24 @@ var Container = function (_React$Component) {
                 ),
                 React.createElement(
                     "div",
-                    { className: "cMain" },
+                    { className: "topWord" },
                     React.createElement(
-                        "div",
-                        { className: "cTopContain" },
-                        React.createElement(
-                            "p",
-                            null,
-                            "\u8BF7\u4E8E ",
-                            this.state.deadLine,
-                            " \u524D\u63D0\u4EA4"
-                        )
+                        "p",
+                        null,
+                        "\u8BF7\u4E8E ",
+                        this.state.deadLine,
+                        " \u524D\u63D0\u4EA4"
                     )
                 ),
-                this.state.token === "" ? React.createElement(Login, null) : React.createElement(Main, null)
+                this.state.token === "" ? React.createElement(Login, {
+                    usePassword: this.state.usePassword,
+                    setToken: this.setToken,
+                    setLoading: this.setLoading,
+                    loading: this.state.loading
+                }) : React.createElement(Main, {
+                    setLoading: this.setLoading,
+                    loading: this.state.loading
+                })
             );
         }
     }]);

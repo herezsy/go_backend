@@ -31,48 +31,35 @@ var Info = function (_React$Component) {
         value: function render() {
             return React.createElement(
                 "div",
-                { className: "cMain" },
+                { className: "info" },
                 React.createElement(
                     "div",
-                    { className: "cMainContain" },
+                    { className: "cInfo" },
                     React.createElement(
-                        "div",
-                        {
-                            className: "cInfo",
-                            style: {
-                                fontWeight: '700'
-                            }
-                        },
-                        React.createElement(
-                            "p",
-                            null,
-                            this.state.name
-                        ),
-                        React.createElement(
-                            "p",
-                            null,
-                            this.state.stuid
-                        )
+                        "p",
+                        null,
+                        this.state.name
                     ),
                     React.createElement(
-                        "div",
-                        {
-                            className: "cInfo",
-                            style: {
-                                color: 'rgba(255, 0, 0, 0.75)',
-                                fontWeight: '700'
-                            }
-                        },
-                        React.createElement(
-                            "p",
-                            null,
-                            this.state.usePassword ? "修改密码" : "设置密码"
-                        ),
-                        React.createElement(
-                            "p",
-                            null,
-                            "\u9000\u51FA"
-                        )
+                        "p",
+                        null,
+                        this.state.stuid
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    {
+                        className: "cInfo"
+                    },
+                    React.createElement(
+                        "p",
+                        null,
+                        this.state.usePassword ? "修改密码" : "设置密码"
+                    ),
+                    React.createElement(
+                        "p",
+                        null,
+                        "\u9000\u51FA"
                     )
                 )
             );

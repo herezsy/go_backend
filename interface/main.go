@@ -4,26 +4,28 @@ import (
 	"../managers/rpcmanager"
 	"../settings"
 	"./account"
-	"errors"
+	"./base"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func init() {
 	conn, err := rpcmanager.Get("account")
-	defer conn.Close()
 	if err != nil {
-		panic(err)
+		log.Info("Can not connect to account system")
+		return
 	}
+	defer conn.Close()
 	var a, b string
 	a = "hey"
 	err = conn.Call("Account.Echo", a, &b)
 	if err != nil {
-		panic(err)
+		log.Info("Can not echo to account system")
+		return
 	}
 	if a != b {
-		panic(errors.New("echo not equal"))
+		log.Info("Can not correct to account system")
+		return
 	}
 	log.WithFields(log.Fields{
 		"echo": b,
@@ -45,6 +47,11 @@ func main() {
 		r.POST("/auth/change", account.ChangePassword)
 		r.POST("/auth/getpromise", account.GetPromiseByPassword)
 	}
-	router.StaticFS("/qndxx", http.Dir("./static"))
+
+	router.Any("/echo", base.Echo)
+	// This approach will report an error about MIME type if server is running on Windows
+	// which is because that FileSystem type is different.
+	// Usually, static resources deploy by Nginx rather than Go process.
+	// router.Static("/qndxx", "./static")
 	router.Run(settings.PortInterface)
 }
