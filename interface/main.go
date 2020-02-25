@@ -5,6 +5,7 @@ import (
 	"../settings"
 	"./account"
 	"./base"
+	"./search"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -34,6 +35,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
+	router.LoadHTMLFiles("./static/template/index.tmpl")
 	r := router.Group(settings.Prefix, account.AuthTokenNotReject)
 	{
 		r.POST("/auth/getcode", account.SendPhoneCode)
@@ -46,9 +48,10 @@ func main() {
 		r.POST("/auth/logout", account.Logout)
 		r.POST("/auth/change", account.ChangePassword)
 		r.POST("/auth/getpromise", account.GetPromiseByPassword)
+		r.Any("/echo", base.Echo)
 	}
 
-	router.Any("/echo", base.Echo)
+	router.GET("/search", search.ToSearch)
 	// This approach will report an error about MIME type if server is running on Windows
 	// which is because that FileSystem type is different.
 	// Usually, static resources deploy by Nginx rather than Go process.
