@@ -5,7 +5,7 @@ import (
 	"../settings"
 	"./account"
 	"./base"
-	"./search"
+	"./cabinet"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -51,7 +51,9 @@ func main() {
 		r.Any("/echo", base.Echo)
 	}
 
-	router.GET("/search", search.ToSearch)
+	c := router.Group("/c")
+	c.GET("/wallpaper", cabinet.GetBingUrl)
+	c.GET("/search", cabinet.ToSearch)
 	// This approach will report an error about MIME type if server is running on Windows
 	// which is because that FileSystem type is different.
 	// Usually, static resources deploy by Nginx rather than Go process.

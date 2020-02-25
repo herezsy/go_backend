@@ -1,4 +1,4 @@
-package search
+package cabinet
 
 import (
 	"github.com/gin-gonic/gin"
