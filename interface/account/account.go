@@ -84,13 +84,16 @@ func Login(c *gin.Context) {
 
 func LoginByStuid(c *gin.Context) {
 	stuid := c.PostForm("stuid")
-	if !regexp.RegexpStuid(stuid) {
+	password := c.PostForm("password")
+	if !regexp.RegexpStuid(stuid) || (password != "" && !regexp.RegexpPassword(password)) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
 	secret := &authparams.Params{
 		Account:     stuid,
 		AccountType: "stuid",
+		Code:        password,
+		CodeType:    "password",
 	}
 	// NOTE! res MUST BE INSTANTIATION!
 	var res = &authparams.Params{}
@@ -231,25 +234,37 @@ func RegisterByPhone(c *gin.Context) {
 	})
 }
 
-func GetNickname(c *gin.Context) {
+func GetNicknameAndProcess(c *gin.Context) {
+	// only return nickname & password-process if stuid exist.
 	stuid := c.PostForm("stuid")
 	if !regexp.RegexpStuid(stuid) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
+	// get nickname
 	secret := &authparams.Params{
 		Account:     stuid,
 		AccountType: "stuid",
 	}
-	// NOTE! res MUST BE INSTANTIATION!
 	var res = &authparams.Params{}
 	err := account.GetNickname(c, secret, res)
+	if err != nil {
+		return
+	}
+	uid := res.Uid
+	// get process
+	secret2 := &authparams.Params{
+		Uid: uid,
+	}
+	res2 := &authparams.Params{}
+	err = account.GetAuthProcess(c, secret2, res2)
 	if err != nil {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"state":    "success",
 		"nickname": res.Nickname,
+		"password": res2.Process["password"],
 	})
 }
 

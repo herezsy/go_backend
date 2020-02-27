@@ -220,7 +220,7 @@ func (account *Account) Register(secret *authparams.Params, res *authparams.Para
 
 func (account *Account) GetNickname(secret *authparams.Params, res *authparams.Params) error {
 	// get info
-	_, _, _, _, nk, err := getInfo(secret)
+	uid, _, _, _, nk, err := getInfo(secret)
 	if err != nil && err.Error() != "uid not found" {
 		meetError("auth", err)
 		return err
@@ -235,6 +235,7 @@ func (account *Account) GetNickname(secret *authparams.Params, res *authparams.P
 		snk += string(rnk[1:])
 	}
 	res.Nickname = snk
+	res.Uid = uid
 	return nil
 }
 
@@ -265,39 +266,46 @@ func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string,
 		return
 	}
 	// auth
+	c := secret.Account
+	if c == "" {
+		err = errors.New("auth error")
+	}
 	switch secret.AccountType {
 	case "wxopenid":
 		// wxOpenid auth
 		// NOTE! Only internally available! it's Danger!
-		c := secret.Account
-		if c == "" {
-			err = errors.New("auth error")
-		}
 	case "stuid":
 		// stuid auth
 		// privilege type must be student
-		c := secret.Account
-		if c == "" || pt != "student" {
+		if pt != "student" {
 			err = errors.New("auth error")
 		}
-	}
-	switch secret.CodeType {
-	case "code":
-		// code auth
-		// get code from cache
-		err = supports.CheckCodeWithUid(uid, secret.Token)
-		if err != nil {
-			return
-		}
-	case "password":
-		// password auth
-		c := secret.Code
-		if c == "" || password != c {
+		switch secret.CodeType {
+		case "password":
+			if password != "" {
+				err = checkPassword(secret.Code, password)
+			}
+		default:
 			err = errors.New("auth error")
 		}
-	case "":
-	default:
-		err = errors.New("codeType not exist")
+	case "phone":
+		switch secret.CodeType {
+		case "password":
+			err = checkPassword(secret.Code, password)
+		case "code":
+			err = supports.CheckCodeWithPhone(secret.Account, secret.Code)
+		default:
+			err = errors.New("auth error")
+		}
+	case "username":
+		switch secret.CodeType {
+		case "password":
+			err = checkPassword(secret.Code, password)
+		case "code":
+			err = supports.CheckCodeWithPhone(secret.Account, secret.Code)
+		default:
+			err = errors.New("auth error")
+		}
 	}
 	return
 }
@@ -318,4 +326,11 @@ func getInfo(secret *authparams.Params) (uid int64, password string, pt string, 
 		err = errors.New("accountType not exist")
 	}
 	return
+}
+
+func checkPassword(origin, crypto string) error {
+	if origin == "" || origin != crypto {
+		return errors.New("auth error")
+	}
+	return nil
 }

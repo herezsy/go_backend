@@ -42,7 +42,7 @@ func main() {
 		r.POST("/auth/login", account.Login)
 		r.POST("/auth/token", account.OpenAuthToken)
 		r.POST("/auth/register", account.RegisterByPhone)
-		r.POST("/auth/getnickname", account.GetNickname)
+		r.POST("/auth/getnickname", account.GetNicknameAndProcess)
 		r.POST("/auth/stuid", account.LoginByStuid)
 		r.POST("/auth/getprocess", account.GetProcess)
 		r.POST("/auth/logout", account.Logout)

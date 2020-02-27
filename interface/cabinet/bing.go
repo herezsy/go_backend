@@ -32,7 +32,7 @@ func GetBingUrl(c *gin.Context) {
 		return
 	}
 	s := m.Images[0]["url"].(string)
-	str := "https://cn.bing.com/" + s
+	str := "https://cn.bing.com" + s
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 		"site":  str,
