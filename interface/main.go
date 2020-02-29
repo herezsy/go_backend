@@ -54,6 +54,8 @@ func main() {
 	c := router.Group("/c")
 	c.GET("/wallpaper", cabinet.GetBingUrl)
 	c.GET("/search", cabinet.ToSearch)
+	c.GET("/list", cabinet.GetSearch)
+	c.POST("/update", cabinet.UpdateSearch)
 	// This approach will report an error about MIME type if server is running on Windows
 	// which is because that FileSystem type is different.
 	// Usually, static resources deploy by Nginx rather than Go process.

@@ -55,3 +55,10 @@ func ServeFatal(c *gin.Context, action string, err error) {
 		"error": action,
 	})
 }
+
+func LogError(action string, err error) {
+	log.WithFields(log.Fields{
+		"Action": action,
+		"Error":  err,
+	}).Error()
+}
