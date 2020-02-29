@@ -1,6 +1,8 @@
 package settings
 
-var Domain = "localhost"
+// Domain can be empty
+// But can not set domain as IP addr
+var Domain = ""
 var Prefix = "/zsy"
 var PortInterface = ":8000"
 

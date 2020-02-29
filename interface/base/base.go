@@ -39,7 +39,7 @@ func ServeError(c *gin.Context, action string, err error) {
 		"Action": action,
 		"Error":  err,
 	}).Warn()
-	c.AbortWithStatusJSON(http.StatusOK, gin.H{
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 		"state": "error",
 		"error": action,
 	})
