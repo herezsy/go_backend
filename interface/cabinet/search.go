@@ -151,7 +151,7 @@ func query(uid int64) (h []searchRecord, err error) {
 		return
 	}
 	defer conn.Close()
-	stmt, err := conn.Prepare(`SELECT randword, date, searchword, lastprocess FROM search WHERE uid = $1 ORDER BY search.date DESC LIMIT 100;`)
+	stmt, err := conn.Prepare(`SELECT randword, date, searchword, lastprocess FROM search WHERE uid = $1 ORDER BY search.date DESC LIMIT 200;`)
 	if err != nil {
 		return
 	}
@@ -159,7 +159,6 @@ func query(uid int64) (h []searchRecord, err error) {
 	if err != nil {
 		return
 	}
-	//h = make([]map[string]string, 100)
 	i := 0
 	for res.Next() {
 		var nRandWord, nSearchWord, nLastProcess sql.NullString

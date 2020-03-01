@@ -20,7 +20,7 @@
         const form = new FormData();
         form.append('process', 'google');
         form.append('rand', '{{ .rand }}');
-        window.fetch('/c/update', {
+        window.fetch('/c/search/update', {
         method: 'POST',
         body: form,
         }).then(r => r.json()).then(r => console.log(r));
