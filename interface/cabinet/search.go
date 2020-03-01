@@ -3,6 +3,7 @@ package cabinet
 import (
 	"../../managers/dbmanager"
 	"../../utils/randworker"
+	"../../utils/regexp"
 	"../base"
 	"database/sql"
 	"errors"
@@ -11,24 +12,37 @@ import (
 	"strconv"
 )
 
+type searchRecord struct {
+	Rand   string
+	Word   string
+	Time   string
+	Google bool
+	Baidu  bool
+}
+
 func ToSearch(c *gin.Context) {
 	word := c.Query("q")
-	if word == "" {
+	switch word {
+	case "":
 		base.ServeError(c, "params error", errors.New("params error"))
-		return
+	case "l":
+		fallthrough
+	case "list":
+		c.Redirect(http.StatusTemporaryRedirect, "/c/search/list")
+	default:
+		rand := randworker.GetAlnumString(32)
+		go record(4, rand, word)
+		c.HTML(http.StatusOK, "search.tmpl", gin.H{
+			"query": word,
+			"rand":  rand,
+		})
 	}
-	rand := randworker.GetAlnumString(32)
-	go record(4, rand, word)
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"query": word,
-		"rand":  rand,
-	})
 }
 
 func UpdateSearch(c *gin.Context) {
 	process := c.PostForm("process")
 	rand := c.PostForm("rand")
-	if process == "" || rand == "" {
+	if process == "" || !regexp.RegexpRand(rand) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
@@ -51,14 +65,27 @@ func UpdateSearch(c *gin.Context) {
 	}
 }
 
-func GetSearch(c *gin.Context) {
+func GetRecord(c *gin.Context) {
 	res, err := query(4)
 	if err != nil {
 		base.ServeError(c, "query wrong", err)
 	}
+	c.HTML(http.StatusOK, "list.tmpl", res)
+}
+
+func DeleteRecord(c *gin.Context) {
+	rand := c.PostForm("rand")
+	if !regexp.RegexpRand(rand) {
+		base.ServeError(c, "params error", errors.New("params error"))
+		return
+	}
+	err := deleteRecord(4, rand)
+	if err != nil {
+		base.ServeError(c, "deleteRecord", err)
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
-		"data":  res[:],
 	})
 }
 
@@ -118,7 +145,7 @@ func update(uid int64, rand, process string) {
 	}
 }
 
-func query(uid int64) (h []map[string]string, err error) {
+func query(uid int64) (h []searchRecord, err error) {
 	conn, err := dbmanager.DialPG()
 	if err != nil {
 		return
@@ -142,13 +169,43 @@ func query(uid int64) (h []map[string]string, err error) {
 			return
 		}
 		t := nDate.Time
-		var tmp = make(map[string]string)
-		tmp["rand"] = nRandWord.String
-		tmp["word"] = nSearchWord.String
-		tmp["time"] = strconv.Itoa(t.Year()) + "年" + strconv.Itoa(int(t.Month())) + "月" + strconv.Itoa(t.Day()) + "日 " + strconv.Itoa(t.Hour()) + ":" + strconv.Itoa(t.Minute()) + ":" + strconv.Itoa(t.Second())
-		tmp["process"] = nLastProcess.String
+		var tmp = searchRecord{}
+		tmp.Rand = nRandWord.String
+		tmp.Word = nSearchWord.String
+		tmp.Time = strconv.Itoa(t.Year()) + "年" + strconv.Itoa(int(t.Month())) + "月" + strconv.Itoa(t.Day()) + "日 " + strconv.Itoa(t.Hour()) + ":" + strconv.Itoa(t.Minute()) + ":" + strconv.Itoa(t.Second())
+		switch nLastProcess.String {
+		case "baidu":
+			tmp.Baidu = true
+		case "google":
+			tmp.Google = true
+		default:
+		}
 		h = append(h, tmp)
 		i += 1
+	}
+	return
+}
+
+func deleteRecord(uid int64, rand string) (err error) {
+	conn, err := dbmanager.DialPG()
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+	stmt, err := conn.Prepare(`DELETE FROM search WHERE randword = $1 AND uid = $2;`)
+	if err != nil {
+		return
+	}
+	res, err := stmt.Exec(rand, uid)
+	if err != nil {
+		return
+	}
+	row, err := res.RowsAffected()
+	if err != nil {
+		return
+	}
+	if row != 1 {
+		err = errors.New(strconv.Itoa(int(row)))
 	}
 	return
 }

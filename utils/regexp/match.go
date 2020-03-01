@@ -13,6 +13,7 @@ var username *regexp.Regexp
 var passwordOne *regexp.Regexp
 var passwordTwo *regexp.Regexp
 var token *regexp.Regexp
+var rand *regexp.Regexp
 
 func init() {
 	phone = regexp.MustCompile(`^1\d{10}$`)
@@ -22,6 +23,11 @@ func init() {
 	passwordOne = regexp.MustCompile(`^[[:alnum:]]{8,16}$`)
 	passwordTwo = regexp.MustCompile(`[A-Z]+|[a-z]+`)
 	token = regexp.MustCompile(`^[A-Za-z0-9+/]+$`)
+	rand = regexp.MustCompile(`^[[:alnum:]]{32}$`)
+}
+
+func RegexpRand(str string) bool {
+	return rand.MatchString(str)
 }
 
 func RegexpPhone(str string) bool {

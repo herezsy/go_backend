@@ -35,7 +35,8 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	router.LoadHTMLFiles("./static/template/index.tmpl")
+	// Only load all files at once or there will be errors of undefine.
+	router.LoadHTMLFiles("./static/template/search.tmpl", "./static/template/list.tmpl")
 	r := router.Group(settings.Prefix, account.AuthTokenNotReject)
 	{
 		r.POST("/auth/getcode", account.SendPhoneCode)
@@ -52,10 +53,14 @@ func main() {
 	}
 
 	c := router.Group("/c")
-	c.GET("/wallpaper", cabinet.GetBingUrl)
-	c.GET("/search", cabinet.ToSearch)
-	c.GET("/list", cabinet.GetSearch)
-	c.POST("/update", cabinet.UpdateSearch)
+	{
+		c.GET("/wallpaper", cabinet.GetBingUrl)
+
+		c.GET("/search", cabinet.ToSearch)
+		c.GET("/search/list", cabinet.GetRecord)
+		c.POST("/search/update", cabinet.UpdateSearch)
+		c.POST("/search/delete", cabinet.DeleteRecord)
+	}
 	// This approach will report an error about MIME type if server is running on Windows
 	// which is because that FileSystem type is different.
 	// Usually, static resources deploy by Nginx rather than Go process.

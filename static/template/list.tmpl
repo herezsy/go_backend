@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>搜索记录</title>
+</head>
+<style type="text/css">
+    @keyframes popIn {
+        from {
+            margin-top: 60px;
+        }
+        to {
+            margin-top: 0;
+        }
+    }
+
+    @keyframes popOut {
+        from {
+            opacity: 1;
+            height: 170px;
+        }
+        to {
+            opacity: 0;
+            height: 0;
+        }
+    }
+
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    body {
+        background: rgba(240, 240, 240, 1);
+        cursor: default;
+    }
+
+    .icon {
+        width: 24px;
+        height: 24px;
+        margin: 10px;
+    }
+
+    .container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 1080px;
+        margin: 0 auto;
+    }
+
+    .item {
+        width: 1040px;
+        padding: 0 20px;
+        animation: popIn 0.3s ease-out;
+        overflow: hidden;
+        height: 170px;
+    }
+
+    .time {
+        color: rgba(0, 0, 0, 0.4);
+        font-size: 20px;
+        line-height: 30px;
+        padding: 10px;
+        font-weight: 700;
+    }
+
+    .box {
+        position: relative;
+        width: 980px;
+        height: 100px;
+        background: rgb(250, 250, 250);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .close {
+        position: absolute;
+        cursor: pointer;
+        left: 990px;
+        top: 0;
+        bottom: 0;
+        height: 44px;
+        width: 44px;
+        margin: auto;
+    }
+
+    .searchWord {
+        width: 610px;
+        text-overflow: ellipsis;
+        font-size: 20px;
+        color: rgba(0, 0, 0, 0.6);
+        font-weight: 700;
+        margin: 0 40px;
+    }
+
+    .operation {
+        width: 290px;
+        display: flex;
+        justify-content: left;
+    }
+
+    .option {
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        width: 125px;
+        margin-left: 10px;
+        font-size: 14px;
+        line-height: 14px;
+        height: 70px;
+        text-align: center;
+        border: solid 1px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        transition: all 0.1s ease-in;
+    }
+
+    .option:hover {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .selectedOption {
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        width: 125px;
+        margin-left: 10px;
+        font-size: 14px;
+        line-height: 14px;
+        height: 70px;
+        text-align: center;
+        border: solid 1px rgb(255, 64, 64);
+        border-radius: 8px;
+        transition: all 0.1s ease-in;
+    }
+
+    .selectedOption:hover {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .selectedOption .tip {
+        position: absolute;
+        top: 10px;
+        height: 24px;
+        line-height: 24px;
+        color: rgba(245, 245, 245, 0.9);
+        width: 125px;
+        font-size: 14px;
+        text-align: center;
+        background: rgba(255, 64, 64, 0.9);
+    }
+
+    .option .tip {
+        display: none;
+    }
+</style>
+<body>
+<div class="container" id="container">
+    {{ range . }}
+    <div class="item" id="{{ .Rand }}">
+        <div class="time">
+            <p>{{ .Time }}</p>
+        </div>
+        <div class="box">
+            <div class="close" onclick="{
+                document.getElementById('{{ .Rand }}').style.animation = 'popOut 0.3s ease-in';
+                setTimeout(() => {
+                    document.getElementById('{{ .Rand }}').style.display = 'none';
+                }, 290);
+                const form = new FormData();
+                    form.append('rand', '{{ .Rand }}');
+                    window.fetch('/c/search/delete', {
+                        method: 'POST',
+                        body: form,
+                    }).then(r => r.json()).then(r => console.log(r));
+            }">
+                <svg t="1583045741522" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                     xmlns="http://www.w3.org/2000/svg" p-id="2380" width="200" height="200">
+                    <path d="M810.666667 273.493333L750.506667 213.333333 512 451.84 273.493333 213.333333 213.333333 273.493333 451.84 512 213.333333 750.506667 273.493333 810.666667 512 572.16 750.506667 810.666667 810.666667 750.506667 572.16 512z"
+                          p-id="2381" fill="#707070"></path>
+                </svg>
+            </div>
+            <div class="searchWord">
+                <p>{{ .Word }}</p>
+            </div>
+            <div class="operation">
+                <div
+                    class="{{ if .Google }}selectedOption{{ else }}option{{ end }}"
+                    id="{{ .Rand }}Google"
+                    onclick="{
+                        document.getElementById('{{ .Rand }}Google').setAttribute('class', 'selectedOption');
+                        document.getElementById('{{ .Rand }}Baidu').setAttribute('class', 'option');
+                        const form = new FormData();
+                        form.append('process', 'google');
+                        form.append('rand', '{{ .Rand }}');
+                        window.fetch('/c/search/update', {
+                            method: 'POST',
+                            body: form,
+                        }).then(r => r.json()).then(r => console.log(r));
+                        window.open('https://www.google.com/search?q={{ .Word }}');
+                    }">
+                    <svg t="1582985985578" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                         xmlns="http://www.w3.org/2000/svg" p-id="3247">
+                        <path d="M518.848 449.152l414.272 0q6.848 38.272 6.848 73.152 0 124-52 221.44t-148.288 152.288-220.864 54.848q-89.728 0-170.848-34.56t-140-93.44-93.44-140-34.56-170.848 34.56-170.848 93.44-140 140-93.44 170.848-34.56q171.424 0 294.272 114.848l-119.424 114.848q-70.272-68-174.848-68-73.728 0-136.288 37.152t-99.136 100.864-36.576 139.136 36.576 139.136 99.136 100.864 136.288 37.152q49.728 0 91.424-13.728t68.576-34.272 46.848-46.848 29.44-49.728 12.864-44.576l-249.152 0 0-150.848z"
+                              p-id="3248" fill="#515151"></path>
+                    </svg>
+                    <p>Google 搜索</p>
+                    <div class="tip">
+                        <p>上次使用</p>
+                    </div>
+                </div>
+                <div
+                    class="{{ if .Baidu }}selectedOption{{ else }}option{{ end }}"
+                    id="{{ .Rand }}Baidu" onclick="{
+                        document.getElementById('{{ .Rand }}Google').setAttribute('class', 'option');
+                        document.getElementById('{{ .Rand }}Baidu').setAttribute('class', 'selectedOption');
+                        const form = new FormData();
+                        form.append('process', 'baidu');
+                        form.append('rand', '{{ .Rand }}');
+                        window.fetch('/c/search/update', {
+                            method: 'POST',
+                            body: form,
+                        }).then(r => r.json()).then(r => console.log(r));
+                        window.open('https://www.baidu.com/s?ie=UTF-8&wd={{ .Word }}');
+                    }"
+                >
+                    <svg t="1582985954499" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                         xmlns="http://www.w3.org/2000/svg" p-id="2386">
+                        <path d="M184.081688 539.606474c111.325025-23.971136 95.969849-157.134634 92.813507-186.224162-5.459618-44.78593-58.264362-123.182633-129.836543-116.86995-89.998392 7.933508-103.135598 138.196583-103.135598 138.196584-12.241487 60.141106 29.089528 188.783357 140.158634 164.854874m206.655076-223.503116c61.420704 0 111.069106-70.804422 111.069105-158.243618 0-87.012664-49.477789-157.817086-110.898492-157.817086S279.539698 70.420543 279.539698 157.859739s49.904322 158.243618 111.325025 158.243619m264.748825 10.45005c82.320804 11.089849 134.869628-76.77588 145.532945-143.314975 10.663317-66.112563-42.653266-143.314975-100.661709-156.537488-58.434975-13.478432-130.518995 79.932221-137.77005 140.755779-7.677588 74.643216 10.663317 148.8599 92.557588 159.395257M981.185931 438.688845c0-31.819337-26.146452-127.661226-124.121006-127.661226-97.889246 0-111.325025 90.424925-111.325025 154.404824 0 60.994171 5.033085 145.874171 127.32 143.314976 121.775076-2.985729 108.467257-138.196583 108.467257-170.186534M857.491458 717.470595s-127.32-98.529045-201.579337-204.735679c-100.661709-156.836061-243.763418-92.984121-291.492423-13.478432-47.771658 80.316101-121.988342 130.604302-132.438392 144.04008-10.663317 13.222513-153.551759 90.424925-121.732423 231.180704 31.98995 140.755779 143.314975 138.196583 143.314976 138.196584s81.894272 8.104121 177.437588-13.222513 177.437588 5.118392 177.437588 5.118392 222.095558 74.643216 283.558916-68.671759c60.738251-143.741508-34.549146-217.958191-34.549146-217.958191"
+                              fill="#515151" p-id="2387"></path>
+                    </svg>
+                    <p>百度 搜索</p>
+                    <div class="tip">
+                        <p>上次使用</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ end }}
+</div>
+</body>
+</html>
