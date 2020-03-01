@@ -42,7 +42,7 @@
 <script>
     const origin = '{{ .query }}';
     document.getElementById('input').addEventListener('keydown', e => {
-        if (e.code === 'Enter' && e.target.value !== origin) {
+        if (e.key === 'Enter' && e.target.value !== origin) {
             window.location.href = '/c/search?q=' + e.target.value;
         }
     });
