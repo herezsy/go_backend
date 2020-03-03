@@ -78,7 +78,6 @@ func Login(c *gin.Context) {
 	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
-		"token": res.Token,
 	})
 }
 

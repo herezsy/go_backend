@@ -47,7 +47,7 @@ func main() {
 		r.POST("/auth/stuid", account.LoginByStuid)
 		r.POST("/auth/getprocess", account.GetProcess)
 		r.POST("/auth/logout", account.Logout)
-		r.POST("/auth/change", account.ChangePassword)
+		r.POST("/auth/changepassword", account.ChangePassword)
 		r.POST("/auth/getpromise", account.GetPromiseByPassword)
 		r.Any("/echo", base.Echo)
 	}
