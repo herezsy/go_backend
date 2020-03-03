@@ -145,6 +145,7 @@ func AuthTokenNotReject(c *gin.Context) {
 		c.Set("token", true)
 	} else {
 		c.SetCookie("token", "", 0, "/", settings.Domain, http.SameSiteLaxMode, true, true)
+		base.LogError("token err"+token, err)
 		c.Set("token", false)
 	}
 }
