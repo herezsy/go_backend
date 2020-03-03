@@ -12,7 +12,7 @@ func GetBytes(l int) []byte {
 	for i, _ := range key {
 		r, _ := rand.Int(rand.Reader, a)
 		rr := r.Bytes()
-		if rr != nil {
+		if rr != nil && len(rr) != 0 {
 			key[i] = rr[0]
 		} else {
 			key[i] = 0

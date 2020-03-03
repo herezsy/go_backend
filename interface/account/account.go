@@ -100,7 +100,7 @@ func LoginByStuid(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, false, true)
+	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 	})
@@ -144,6 +144,7 @@ func AuthTokenNotReject(c *gin.Context) {
 		c.Set("nk", res.Nickname)
 		c.Set("token", true)
 	} else {
+		c.SetCookie("token", "", 0, "/", settings.Domain, http.SameSiteLaxMode, true, true)
 		c.Set("token", false)
 	}
 }
