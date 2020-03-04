@@ -59,15 +59,28 @@ func GetProcess(c *gin.Context) {
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
-	if !regexp.RegexpUsername(username) || !regexp.RegexpPassword(password) {
+	if !regexp.RegexpPassword(password) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}
-	secret := &authparams.Params{
-		Account:     username,
-		AccountType: "username",
-		Code:        password,
-		CodeType:    "password",
+	var secret *authparams.Params
+	if regexp.RegexpPhone(username) {
+		secret = &authparams.Params{
+			Account:     username,
+			AccountType: "phone",
+			Code:        password,
+			CodeType:    "password",
+		}
+	} else if regexp.RegexpUsername(username) {
+		secret = &authparams.Params{
+			Account:     username,
+			AccountType: "username",
+			Code:        password,
+			CodeType:    "password",
+		}
+	} else {
+		base.ServeError(c, "params error", errors.New("params error"))
+		return
 	}
 	// NOTE! res MUST BE INSTANTIATION!
 	var res = &authparams.Params{}
