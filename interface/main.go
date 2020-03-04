@@ -40,7 +40,8 @@ func main() {
 	r := router.Group(settings.Prefix, account.AuthTokenNotReject)
 	{
 		r.POST("/auth/getcode", account.SendPhoneCode)
-		r.POST("/auth/login", account.Login)
+		r.POST("/auth/loginbypassword", account.LoginByPassword)
+		r.POST("/auth/loginbycode", account.LoginByCode)
 		r.POST("/auth/token", account.OpenAuthToken)
 		r.POST("/auth/register", account.RegisterByPhone)
 		r.POST("/auth/getnickname", account.GetNicknameAndProcess)

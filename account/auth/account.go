@@ -146,24 +146,35 @@ func (account *Account) Echo(str *string, res *string) error {
 
 func (account *Account) SendCode(secret *authparams.Params, res *authparams.Params) error {
 	// confirm account type
-	if secret.AccountType != "phone" {
-		return errors.New("accountType wrong")
-	}
-	// get send type
-	uid, _, _, _, _, err := getInfo(secret)
-	if err != nil && err.Error() != "uid not found" {
-		meetError("auth", err)
+	if secret.AccountType == "phone" {
+		// get send type
+		uid, _, _, _, _, err := getInfo(secret)
+		if err != nil && err.Error() != "uid not found" {
+			meetError("auth", err)
+			return err
+		}
+		if err != nil && err.Error() == "uid not found" {
+			// no-register type
+			err = nil
+			err = supports.SendCodeWithPhone(secret.Account)
+		} else {
+			// register type
+			err = supports.SendCodeWithUid(uid)
+		}
 		return err
-	}
-	if err != nil && err.Error() == "uid not found" {
-		// no-register type
-		err = nil
-		err = supports.SendCodeWithPhone(secret.Account)
-	} else {
+	} else if secret.AccountType == "username" {
+		// get send type
+		uid, _, _, _, _, err := getInfo(secret)
+		if err != nil {
+			meetError("auth", err)
+			return err
+		}
 		// register type
 		err = supports.SendCodeWithUid(uid)
+		return err
+	} else {
+		return errors.New("accountType wrong")
 	}
-	return err
 }
 
 func (account *Account) FindUid(secret *authparams.Params, b *int64) error {

@@ -13,13 +13,21 @@ import (
 )
 
 func SendPhoneCode(c *gin.Context) {
-	phone := c.PostForm("phone")
-	if !regexp.RegexpPhone(phone) {
+	username := c.PostForm("phone")
+	var secret *authparams.Params
+	if regexp.RegexpPhone(username) {
+		secret = &authparams.Params{
+			Account:     username,
+			AccountType: "phone",
+		}
+	} else if regexp.RegexpUsername("username") {
+		secret = &authparams.Params{
+			Account:     username,
+			AccountType: "username",
+		}
+	} else {
 		base.ServeError(c, "params error", errors.New("params error"))
-	}
-	secret := &authparams.Params{
-		Account:     phone,
-		AccountType: "phone",
+		return
 	}
 	var res = &authparams.Params{}
 	err := account.SendCode(c, secret, res)
@@ -56,7 +64,7 @@ func GetProcess(c *gin.Context) {
 	})
 }
 
-func Login(c *gin.Context) {
+func LoginByPassword(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 	if !regexp.RegexpPassword(password) {
@@ -77,6 +85,37 @@ func Login(c *gin.Context) {
 			AccountType: "username",
 			Code:        password,
 			CodeType:    "password",
+		}
+	} else {
+		base.ServeError(c, "params error", errors.New("params error"))
+		return
+	}
+	// NOTE! res MUST BE INSTANTIATION!
+	var res = &authparams.Params{}
+	err := account.AuthAndGetToken(c, secret, res)
+	if err != nil {
+		return
+	}
+	c.SetCookie("token", res.Token, 604800, "/", settings.Domain, http.SameSiteLaxMode, true, true)
+	c.JSON(http.StatusOK, gin.H{
+		"state": "success",
+	})
+}
+
+func LoginByCode(c *gin.Context) {
+	phone := c.PostForm("phone")
+	code := c.PostForm("code")
+	if !regexp.RegexpPassword(code) {
+		base.ServeError(c, "params error", errors.New("params error"))
+		return
+	}
+	var secret *authparams.Params
+	if regexp.RegexpPhone(phone) {
+		secret = &authparams.Params{
+			Account:     phone,
+			AccountType: "phone",
+			Code:        code,
+			CodeType:    "code",
 		}
 	} else {
 		base.ServeError(c, "params error", errors.New("params error"))
