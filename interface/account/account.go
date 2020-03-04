@@ -75,7 +75,7 @@ func Login(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, false, true)
+	c.SetCookie("token", res.Token, 604800, "/", settings.Domain, http.SameSiteLaxMode, true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 	})
@@ -100,7 +100,7 @@ func LoginByStuid(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	c.SetCookie("token", res.Token, 1036800, "/", settings.Domain, http.SameSiteLaxMode, true, true)
+	c.SetCookie("token", res.Token, 6048000, "/", settings.Domain, http.SameSiteLaxMode, true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 	})
@@ -270,7 +270,7 @@ func GetNicknameAndProcess(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
-	c.SetCookie("token", "", 0, "/", settings.Domain, http.SameSiteLaxMode, false, true)
+	c.SetCookie("token", "", 0, "/", settings.Domain, http.SameSiteLaxMode, true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
 	})

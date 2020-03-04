@@ -2,11 +2,11 @@ package settings
 
 // Domain can be empty
 // But can not set domain as IP addr
-var Domain = ""
-var Prefix = "/zsy"
-var PortInterface = ":8000"
+const Domain = "localhost"
+const Prefix = "/zsy"
+const PortInterface = ":8000"
 
-var HostRedis = ":9683"
-var StrPostgres = "dbname=application user=postgres sslmode=disable"
+const HostRedis = ":9683"
+const StrPostgres = "dbname=application user=postgres sslmode=disable"
 
-var PortAccount = ":7744"
+const PortAccount = ":7744"

@@ -87,7 +87,7 @@ func (account *Account) AuthToken(secret *authparams.Params, res *authparams.Par
 	var token string
 	if tDead := time.Now(); tDead.After(t) {
 		return errors.New("token expired")
-	} else if tOld := tDead.Add(10 * 24 * time.Hour); tOld.After(t) {
+	} else if tOld := tDead.Add(6 * 24 * time.Hour); tOld.After(t) {
 		token, err = supports.MakeToken(uid, pt, pl, nk)
 		if err != nil {
 			return err
