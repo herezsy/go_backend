@@ -289,9 +289,9 @@ func RegisterByPhone(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	c.SetCookie("token", res.Token, 604800, "/", settings.Domain, http.SameSiteLaxMode, true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
-		"token": res.Token,
 	})
 }
 

@@ -22,7 +22,7 @@ func init() {
 	username = regexp.MustCompile(`^[[:alnum:]]{2,16}$`)
 	passwordOne = regexp.MustCompile(`^[[:alnum:]]{8,16}$`)
 	passwordTwo = regexp.MustCompile(`[A-Z]+|[a-z]+`)
-	token = regexp.MustCompile(`^[A-Za-z0-9+/]+$`)
+	token = regexp.MustCompile(`^[A-Za-z0-9+/=]+$`)
 	rand = regexp.MustCompile(`^[[:alnum:]]{32}$`)
 }
 
