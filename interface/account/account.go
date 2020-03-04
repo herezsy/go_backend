@@ -105,7 +105,7 @@ func LoginByPassword(c *gin.Context) {
 func LoginByCode(c *gin.Context) {
 	username := c.PostForm("username")
 	code := c.PostForm("code")
-	if !regexp.RegexpPassword(code) {
+	if !regexp.RegexpCode(code) {
 		base.ServeError(c, "params error", errors.New("params error"))
 		return
 	}

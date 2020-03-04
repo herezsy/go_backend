@@ -304,7 +304,7 @@ func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string,
 		case "password":
 			err = checkPassword(secret.Code, password)
 		case "code":
-			err = supports.CheckCodeWithPhone(secret.Account, secret.Code)
+			err = supports.CheckCodeWithUid(uid, secret.Code)
 		default:
 			err = errors.New("auth error")
 		}
@@ -313,7 +313,7 @@ func auth(secret *authparams.Params) (uid int64, pt string, pl int64, nk string,
 		case "password":
 			err = checkPassword(secret.Code, password)
 		case "code":
-			err = supports.CheckCodeWithPhone(secret.Account, secret.Code)
+			err = supports.CheckCodeWithUid(uid, secret.Code)
 		default:
 			err = errors.New("auth error")
 		}
