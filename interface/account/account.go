@@ -13,7 +13,7 @@ import (
 )
 
 func SendPhoneCode(c *gin.Context) {
-	username := c.PostForm("phone")
+	username := c.PostForm("username")
 	var secret *authparams.Params
 	if regexp.RegexpPhone(username) {
 		secret = &authparams.Params{
