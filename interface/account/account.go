@@ -36,6 +36,7 @@ func SendPhoneCode(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"state": "success",
+		"user":  res.Message,
 	})
 }
 

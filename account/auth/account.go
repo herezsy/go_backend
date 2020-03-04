@@ -157,9 +157,11 @@ func (account *Account) SendCode(secret *authparams.Params, res *authparams.Para
 			// no-register type
 			err = nil
 			err = supports.SendCodeWithPhone(secret.Account)
+			res.Message = "register"
 		} else {
 			// register type
 			err = supports.SendCodeWithUid(uid)
+			res.Message = "user"
 		}
 		return err
 	} else if secret.AccountType == "username" {
@@ -171,6 +173,7 @@ func (account *Account) SendCode(secret *authparams.Params, res *authparams.Para
 		}
 		// register type
 		err = supports.SendCodeWithUid(uid)
+		res.Message = "user"
 		return err
 	} else {
 		return errors.New("accountType wrong")

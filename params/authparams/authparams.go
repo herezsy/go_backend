@@ -12,4 +12,5 @@ type Params struct {
 	PrivilegeLevel int64
 	Token          string
 	Process        map[string]string
+	Message        string
 }
